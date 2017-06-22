@@ -41,7 +41,7 @@ find_package(Qt5Core  REQUIRED)
 include_directories("include")
 
 
-set(SOURCE_FILES main.cpp Include/WatershedSegmenter.hpp  Include/LBP.CPP Include/DigtalLocate.cpp  Include/Histogram1D.cpp  Include/tool.cpp Include/web_interface.cpp Include/output_server.cpp )
+set(SOURCE_FILES main2.cpp Include/WatershedSegmenter.hpp  Include/LBP.CPP Include/DigtalLocate.cpp  Include/Histogram1D.cpp  Include/tool.cpp Include/web_interface.cpp Include/output_server.cpp )
 
 add_subdirectory(test)
 
