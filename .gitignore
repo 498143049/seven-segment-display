@@ -33,5 +33,6 @@
 
 # use define 
 cmake-build-debug/
+datasource/tmp/
 .idea/
 .vscode/
