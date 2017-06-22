@@ -2,7 +2,7 @@
 
 An efficient method of seven-segment display location in industry
 
-##require 
+## require 
 + cmake 3.5 
 + c++11 
 + opencv 3.2 
@@ -46,6 +46,6 @@ cnn 训练文件
 ## main.cpp 
 训练主程序
 
-##　main2.cpp　
+## main2.cpp　
 执行主程序
 
