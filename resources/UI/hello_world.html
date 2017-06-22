@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello React!</title>
+    <script src="https://cdn.bootcss.com/react/15.4.2/react.min.js"></script>
+    <script src="https://cdn.bootcss.com/react/15.4.2/react-dom.min.js"></script>
+    <script src="https://cdn.bootcss.com/babel-standalone/6.22.1/babel.min.js"></script>
+    <script src="plugins/jQuery/jquery-2.2.3.min.js"></script>
+  </head>
+  <body>
+    <div id="content"></div>
+    
+    <script type="text/babel">
+    console.log("hello,world");
+    var socket = new WebSocket('ws://localhost:2009'); 
+
+    socket.onmessage = function(event) { 
+    console.log(event.data);
+    var names = jQuery.parseJSON(event.data).url;
+    ReactDOM.render(
+       <ul class="sidebar-menu" >{
+      names.map(function (name) {
+        return  <li class="active">
+            <a href="#">
+              <i class="fa fa-link"></i>
+                <span>{name} <img src={name} class="my_content" /></span>
+            </a>
+          </li>})} </ul>,document.getElementById('content'));
+     }; 
+
+    socket.onclose = function(event) { 
+       console.log('Client notified socket has closed',event); 
+    }; 
+    
+    </script>
+  </body>
+</html>
+
+         
+
+

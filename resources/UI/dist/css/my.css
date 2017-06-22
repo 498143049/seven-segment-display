@@ -1,0 +1,17 @@
+.my_content{
+    width: 84%; 
+    display: block; 
+    margin: 7px auto ;
+}
+.my_debug {
+    width:20%;
+    float: left
+}
+.set_width{
+    width: 100%;
+}
+.set_width_50{
+    height: 100px;
+    margin-bottom: 18px;
+    margin-left: 16px;
+}

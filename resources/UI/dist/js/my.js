@@ -1,0 +1,10 @@
+function load_conttent(contain){
+    var obj = str.parseJSON();
+    var string = "<li class="active">\
+            <a href="#">\
+              <i class="fa fa-link"></i>\
+              <span>data_0 <img src="data_0.jpg" class="my_content" /></span>\
+            </a>
+          </li>\
+
+}
