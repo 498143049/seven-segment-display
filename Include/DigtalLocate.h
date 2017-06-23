@@ -35,6 +35,7 @@ public:
     DigtalLocate(DigtalLocate *Dig,Rect rect,int id);
     DigtalLocate(string urlPath, double type=0);
     Mat Get_LBP();
+    void recongize_test();
    // DigtalLocate(const string urlpath,int m_GaussianBlurSiz=5);
     void atuo_Modify_Parametes();
     vector<cv::Rect> mserExtractor ();

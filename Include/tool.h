@@ -76,6 +76,10 @@ public:
     static Mat Resize(Mat src,Size si);
     static Mat roatation(Mat src, double angle);
     static Mat char_threshold(Mat srcMat, Mat gray, string name, Mat max,int type);
+    static Mat char_threshold2(Mat srcMat, Mat gray, string name, Mat max,int type);
+    static cv::Mat thinImage(const cv::Mat & src, const int maxIterations = -1);
+    static void thin(const Mat &src, Mat &dst, const int iterations);
+    static string location(Mat src);
     template <typename  T>
     static vector<vector<double >> radon(Mat src,vector<T> angle_array) {
         int k, m, n;              /* loop counters */

@@ -133,6 +133,23 @@ DigtalLocate::DigtalLocate(DigtalLocate *Dig,cv::Rect rect,int id){
 
 
 }
+
+void DigtalLocate::recongize_test(){
+    tool::DebugOut(STR(min), name, _min);
+    //中值滤波　
+    Mat out;
+    medianBlur(_gray,out,3);
+    tool::DebugOut(STR(med), name, out);
+    Mat th1;
+    int t = (int)threshold(out,th1,0, 255, CV_THRESH_OTSU|CV_THRESH_BINARY);
+    tool::DebugOut(STR(th1), name, th1);
+    cout<<tool::location(th1)<<endl;
+
+   // Mat best_test = tool::char_threshold2(const_Mat,_gray,name,_max,0);
+   // tool::DebugOut(STR(best_test), name, best_test);
+    //这是使用图割的方式...
+
+}
 Mat DigtalLocate::Get_LBP(){
     Mat current = tool::Resize(_gray,Size(32,48));
     tool::DebugOut(STR(gray_t1), name,current);
@@ -264,8 +281,8 @@ string  DigtalLocate::get_char(){
             Mat ss = tool::get_R_mat(best_test,angel/2.0);
             ss = splite_char_sub(ss);
             tool::DebugOut(STR(ss_correct_after), sub.name, ss); //ss矫正后
-
-            result += tool::getNOByLine(ss, tool::getLineRange(best_test.rows, best_test.cols), false,angel);
+            result +=tool::location(ss);
+            //result += tool::getNOByLine(ss, tool::getLineRange(best_test.rows, best_test.cols), false,angel);
             resultArray.push_back(result);
           //  tool::DebugOut(STR(sub_candidates_P), name, roiImg_raw, name, c);
             newcanditaes.push_back(canditaes[c]);
@@ -319,7 +336,7 @@ vector<Rect> DigtalLocate::probably_locate(){
         //结果
 
         //调试出去画图结果
-      //  putText(imgMat,s,Point(canditaes[c].x-50,canditaes[c].y-50),1,10,Scalar(255,255,255),10);
+        putText(imgMat,s,Point(canditaes[c].x-50,canditaes[c].y-50),1,10,Scalar(255,255,255),10);
 
         if(s.size()!=0)
             result_ROI.push_back({s,Rect()});
