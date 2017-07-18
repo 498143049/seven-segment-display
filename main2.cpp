@@ -79,7 +79,7 @@ int main(int argc, char** argv)
         DigtalLocate temp =  DigtalLocate("../datasource/ndata/ndata_"+to_string(i)+".jpg",1.1);
         temp.probably_locate();
         temp.output_joson();
-       cout<<i<<" is ok! \t"<<"cost time :"<<(cvGetTickCount()-time)/(cvGetTickFrequency()*1000)<< "ms"<<endl;
+        cout<<i<<" is ok! \t"<<"cost time :"<<(cvGetTickCount()-time)/(cvGetTickFrequency()*1000)<< "ms"<<endl;
     }
 
 //    for(int i=0; i<=91;i++) {

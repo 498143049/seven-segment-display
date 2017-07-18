@@ -16,8 +16,8 @@
 #include <sstream>
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
-#include <Include/WatershedSegmenter.hpp>
-#include "Include/DigtalLocate.h"
+#include "WatershedSegmenter.hpp"
+#include "DigtalLocate.h"
 #include <cmath>
 using namespace cv;
 using namespace std;
@@ -35,7 +35,7 @@ const float ROW_EDGE_OFFSET_RATE = 0.1f;//上下边界偏移百分比，往缩�
 
 const float LIGHT_RATE = 0.4f;//点亮占比阈值
 const int SINGLE_WIDTH = 10;//单个数字宽度阈值
-const float ONE_HIGHT_WIDTH_RATE = 2.3f;//数字1图像高宽比阈值
+const float ONE_HIGHT_WIDTH_RATE = 2.6f;//数字1图像高宽比阈值
 const int SCALING_RATE = 4;//原图到显示缩放率
 const int DEFLECTION_ANGLE = 5;//原图相对水平偏转角度
 const int LINE_WIDTH = 5;//数码管线宽阈值
@@ -52,8 +52,8 @@ struct areaRange {
 };
 class tool {
 public:
-    static  vector<int> get_col_number( const Mat& picture);
-    static  vector<int> get_row_number( const Mat& picture);
+    static  vector<int> get_col_number( const Mat& picture,double rate=1);
+    static  vector<int> get_row_number( const Mat& picture, double rate=1);
     static  Mat get_hist_show(const vector<int> vec);
     static  vector< pair<int,int> > get_Area( vector<int> &vec,  int);
     static  string DebugOut  (string dir ,string name, Mat resultResized, string id="",int tid=0);
@@ -67,7 +67,7 @@ public:
     static  string resultout  (string dir ,string name, Mat resultResized, string subdirName, int tid);
     static void incrementRadon(vector<double> &vt, double pixel, double r);
     static int imageRotate2(InputArray src, OutputArray dst, double angle);
-    static double correct_error(Mat &src, double &best_angle);
+    static double correct_error(Mat &src, double &best_angle,Mat &canny_dst);
     static Mat get_R_mat(Mat src, double angle);
     static string get_name(string urlPath);
     static Mat  get_best_side(DigtalLocate *src,int front_value,int back_value,Mat & mat);
@@ -79,7 +79,8 @@ public:
     static Mat char_threshold2(Mat srcMat, Mat gray, string name, Mat max,int type);
     static cv::Mat thinImage(const cv::Mat & src, const int maxIterations = -1);
     static void thin(const Mat &src, Mat &dst, const int iterations);
-    static string location(Mat src);
+    static void AdaptiveFindThreshold(const Mat image, double *low, double *high, int aperture_size=3);
+    static string location(Mat &src);
     template <typename  T>
     static vector<vector<double >> radon(Mat src,vector<T> angle_array) {
         int k, m, n;              /* loop counters */
@@ -92,6 +93,7 @@ public:
         int r1;
         double  deg2rad = 3.14159265358979 / 180.0;
         for_each(angle_array.begin(),angle_array.end(),[=](double &a1){a1*=deg2rad;});
+
         int width = src.cols, height = src.rows;
         vector<double > xCosTable(2*src.cols ,0);
         vector<double > ySinTable(2*src.rows ,0);

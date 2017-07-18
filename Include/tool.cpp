@@ -89,21 +89,21 @@ void tool::marge(vector<Rect> &candidates){
     }
     candidates.swap(new_candidates);
 }
-vector<int> tool::get_row_number( const Mat& picture ) {
+vector<int> tool::get_row_number( const Mat& picture, double rate) {
 
     vector<int> result(picture.rows,0);
-    for (int i = 0; i < picture.rows; i++)
+    for (int i = 0; i < picture.rows*rate; i++)
         for (int j = 0; j < picture.cols; j++)
             if (picture.at<uchar>(i, j) > 0)
                 result[i] += 1;
     return std::move(result);
 
 }
-vector<int> tool::get_col_number( const Mat& picture ) {
+vector<int> tool::get_col_number( const Mat& picture,double rate ) {
 
     vector<int> result(static_cast<uint64_t>(picture.cols), 0);
     for (int j = 0; j < picture.cols; j++)
-        for (int i = 0; i < picture.rows; i++)
+        for (int i = 0; i < picture.rows*rate; i++)
             if (picture.at<uchar>(i, j) > 0)
                 result[j] += 1;
     return std::move(result);
@@ -587,49 +587,44 @@ void tool::incrementRadon(vector<double> &vt, double pixel, double r) {
 
 //返回的是倾斜的角度
 //输入二值图像,图像原路矫正,而且
-double tool::correct_error(Mat &src,double &best_angle){
+double tool::correct_error(Mat &src,double &best_angle,Mat &canny_dst){
 
-    Mat canny;
     vector<double> max_array; //存储最大值的素组
     vector<double> array_p;   //生成的角度素组P
 
     double angle_Horizontal;  //水平角度
     double angle_vertical;    //竖直角度
 
-    //canny 边缘检测(减少数量可以加速速度)
-    Canny(src,canny,100,300,3);
-    //初始化数组
-    for(int i=-90;i<90;i++) {
-//        double  x= i*0.5;
-//        test.push_back(x);
-        double x= i;
-        array_p.push_back(x/2.0);
-        array_p.push_back(x);
-    }
+    double low_thresh = 0.0;
+    double high_thresh = 0.0;
 
-    //获取最后返回的数组
-    auto s = tool::radon(canny,array_p);
-    //找到每一个角度的最大值
-    for_each(s.begin(),s.end(),[&](vector<double> single){max_array.push_back(*max_element(single.begin(),single.end()));});
+    tool::AdaptiveFindThreshold(src,&low_thresh,&high_thresh);
+    //canny 边缘检测检测边缘更浅
+    Canny(src,canny_dst,low_thresh,high_thresh,3);
+    //初始化数组　
+    //构造角度素组
+    for(int i=-25;i<25;++i)
+        for(int j=0;j<10;++j)
+            array_p.push_back(i+j*0.1);
+
+
+    //获取最后返回的数组　
+    DebugOut("test","canyytest",canny_dst);
+    auto s = tool::radon(canny_dst,array_p);
+    //找到每一个角度的最大值　//为什么不计算累加值
+    for(auto single:s){
+        max_array.push_back(*max_element(single.begin(),single.end()));
+    }
     //角度限制在   60~120 度之间
-    angle_vertical = std::distance(max_element(max_array.begin()+60*2,max_array.begin()+120*2+1),max_array.begin());
-    //
-    auto time2 =  max_element(max_array.begin(),max_array.begin()+5*2+1);
-    auto time3 = max_element(max_array.end()-5*2,max_array.end());
+//    for(auto i:max_array){
+//        cout<<i<<" ";
+//    }
+//    cout<<endl;
+    angle_vertical = std::distance(max_array.begin(),max_element(max_array.begin(),max_array.end()));
 
-    if(*time3>*time2){
-        angle_Horizontal =  std::distance(time3,max_array.end());
-    }
-    else{
-        angle_Horizontal =  std::distance(time2,max_array.begin());
-    }
-    tool::imageRotate2(src,src,-angle_Horizontal/2);
 
-  //  tool::DebugOut(STR(result_s_r), name, answer);
-
-    best_angle=std::distance(max_array.begin(),max_element(max_array.begin(),max_array.end()));
-   // best_angle = angle_vertical;
-    angle_vertical = 90+angle_vertical/2;
+    best_angle=0;
+    angle_vertical = 90-25+angle_vertical/10.0;
     return angle_vertical;
 }
 
@@ -1231,7 +1226,18 @@ void tool::thin(const Mat &src, Mat &dst, const int iterations)
 }
 //如果是1的话,直接输出结果 //输入处理过的二值图片
 #define  need_pixels 2
-
+/**
+ *             HORIZ_UP
+ *
+ * VERT_LEFT_UP          VERT_RIGHT_UP
+ *
+ *             HORIZ_MID
+ *
+ * VERT_LEFT_DOWN         VERT_RIGHT_DOWN
+ *
+ *             HORIZ_DOWN
+ *
+ */
 #define HORIZ_UP 1
 #define VERT_LEFT_UP 2
 #define VERT_RIGHT_UP 4
@@ -1244,8 +1250,14 @@ void tool::thin(const Mat &src, Mat &dst, const int iterations)
 #define MINUS 256
 
 /* digits */
-#define D_ZERO (ALL_SEGS & ~HORIZ_MID)
+#define D_OTHER_SIX (ALL_SEGS & ~VERT_LEFT_UP)
 #define D_U (ALL_SEGS & ~(HORIZ_MID |HORIZ_UP) )
+#define D_P (ALL_SEGS & ~(HORIZ_DOWN |VERT_RIGHT_DOWN) )
+#define D_H (ALL_SEGS & ~(HORIZ_UP |HORIZ_DOWN) )
+#define Mid (ALL_SEGS & ~(HORIZ_UP |HORIZ_DOWN|VERT_LEFT_UP|VERT_RIGHT_UP|VERT_LEFT_DOWN|VERT_RIGHT_DOWN) )
+
+
+#define D_ZERO (ALL_SEGS & ~HORIZ_MID)
 #define D_ONE (VERT_RIGHT_UP | VERT_RIGHT_DOWN)
 #define D_TWO (ALL_SEGS & ~(VERT_LEFT_UP | VERT_RIGHT_DOWN))
 #define D_THREE (ALL_SEGS & ~(VERT_LEFT_UP | VERT_LEFT_DOWN))
@@ -1269,10 +1281,28 @@ void tool::thin(const Mat &src, Mat &dst, const int iterations)
 #define D_UNKNOWN 0
 
 
-string tool::location(Mat src){
+string tool::location(Mat &src){
     float heightDivWidth = (float)src.rows/src.cols;
-    if (heightDivWidth > ONE_HIGHT_WIDTH_RATE)
-        return "1";
+    if (heightDivWidth > ONE_HIGHT_WIDTH_RATE) //还需要验证一下
+    {
+        double t = cv::mean(src)[0];
+        if(t>90) {
+            return "1";
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    //读取图片
+    //模板滤波
+    if(src.rows<40) return " ";
+    /* Mat templates = imread("../datasource/template/template.jpg",IMREAD_GRAYSCALE); //灰度图
+    Size targetsize(src.cols, src.rows);
+    resize(templates,templates,targetsize);
+    src = src&templates; */
+
 
     uint8_t type;
     int middle=0, quarter=0, three_quarters=0; /* scanlines */
@@ -1286,7 +1316,7 @@ string tool::location(Mat src){
         uchar * pData1=src.ptr<uchar>(i);
         if(pData1[middle]>1){
             found_pixels++;
-            pData1[middle]=0;
+          //  pData1[middle]=0;
 
         }
         //判断3个格子并记录
@@ -1352,6 +1382,7 @@ string tool::location(Mat src){
     if(found_pixels >= need_pixels) {
         type |= VERT_RIGHT_DOWN;
     }
+  //  cout<<bitset<sizeof(int)*8>(type)<<endl;
     found_pixels = 0;
     switch(type) {
         case D_ZERO: return "0"; break;
@@ -1376,9 +1407,85 @@ string tool::location(Mat src){
         case D_HEX_E: return "e"; break;
         case D_HEX_F: return "f"; break;
         case D_U: return "U";break;
-        default: return "";
+        case D_OTHER_SIX: return "6"; break;
+        case D_P:return "P"; break;
+        case D_H:return "H"; break;
+        case Mid:return "-"; break;
+        default: return "X";
     }
     //根据type 判断
+}
+// 仿照matlab，自适应求高低两个门限
+void _AdaptiveFindThreshold(CvMat *dx, CvMat *dy, double *low, double *high)
+{
+    CvSize size;
+    IplImage *imge=0;
+    int i,j;
+    CvHistogram *hist;
+    int hist_size = 255;
+    float range_0[]={0,256};
+    float* ranges[] = { range_0 };
+    double PercentOfPixelsNotEdges = 0.5;//调整的参数
+    size = cvGetSize(dx);
+    imge = cvCreateImage(size, IPL_DEPTH_32F, 1);
+    // 计算边缘的强度, 并存于图像中
+    float maxv = 0;
+    for(i = 0; i < size.height; i++ )
+    {
+        const short* _dx = (short*)(dx->data.ptr + dx->step*i);
+        const short* _dy = (short*)(dy->data.ptr + dy->step*i);
+        float* _image = (float *)(imge->imageData + imge->widthStep*i);
+        for(j = 0; j < size.width; j++)
+        {
+            _image[j] = (float)(abs(_dx[j]) + abs(_dy[j]));
+            maxv = maxv < _image[j] ? _image[j]: maxv;
 
+        }
+    }
+    if(maxv == 0){
+        *high = 0;
+        *low = 0;
+        cvReleaseImage( &imge );
+        return;
+    }
+
+    // 计算直方图
+    range_0[1] = maxv;
+    hist_size = (int)(hist_size > maxv ? maxv:hist_size);
+    hist = cvCreateHist(1, &hist_size, CV_HIST_ARRAY, ranges, 1);
+    cvCalcHist( &imge, hist, 0, NULL );
+    int total = (int)(size.height * size.width * PercentOfPixelsNotEdges);
+    float sum=0;
+    int icount = hist->mat.dim[0].size;
+
+    float *h = (float*)cvPtr1D( hist->bins, 0 );
+    for(i = 0; i < icount; i++)
+    {
+        sum += h[i];
+        if( sum > total )
+            break;
+    }
+    // 计算高低门限
+    *high = (i+1) * maxv / hist_size ;
+    *low = *high * 0.4;
+    cvReleaseImage( &imge );
+    cvReleaseHist(&hist);
+}
+//自适应canny 参数
+void tool::AdaptiveFindThreshold(const Mat image, double *low, double *high, int aperture_size)
+{
+    cv::Mat src = image;
+    const int cn = src.channels();
+    cv::Mat dx(src.rows, src.cols, CV_16SC(cn));
+    cv::Mat dy(src.rows, src.cols, CV_16SC(cn));
+
+    //使用soble 得到边缘
+    cv::Sobel(src, dx, CV_16S, 1, 0, aperture_size, 1, 0, cv::BORDER_REPLICATE);
+    cv::Sobel(src, dy, CV_16S, 0, 1, aperture_size, 1, 0, cv::BORDER_REPLICATE);
+
+    CvMat _dx = dx, _dy = dy;
+    _AdaptiveFindThreshold(&_dx, &_dy, low, high);
 
 }
+
+
