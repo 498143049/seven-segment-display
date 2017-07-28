@@ -1297,11 +1297,11 @@ string tool::location(Mat &src){
 
     //读取图片
     //模板滤波
-    if(src.rows<40) return " ";
-    /* Mat templates = imread("../datasource/template/template.jpg",IMREAD_GRAYSCALE); //灰度图
+    //if(src.rows<40) return " ";
+     Mat templates = imread("../datasource/template/template.jpg",IMREAD_GRAYSCALE); //灰度图
     Size targetsize(src.cols, src.rows);
     resize(templates,templates,targetsize);
-    src = src&templates; */
+    src = src&templates;
 
 
     uint8_t type;
