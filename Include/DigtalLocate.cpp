@@ -3,11 +3,9 @@
 //
 #include "DigtalLocate.h"
 #include <opencv2/ml.hpp>
-#include "tiny_dnn/tiny_dnn.h"
 #include "LBP.h"
 #include <algorithm>
-using namespace tiny_dnn;
-using namespace tiny_dnn::activation;
+#include "json.h"
 using namespace std;
 using namespace cv::ml;
 
@@ -69,6 +67,9 @@ extern ofstream outfile;
 DigtalLocate::DigtalLocate(string urlPath,double x){
     this->const_Mat = imread(urlPath);
     this->imgMat =  this->const_Mat.clone();  //const_Mat 为不变的　img 是为调试做准备
+    this->blue=this->const_Mat.clone();
+    this->green=this->const_Mat.clone();
+    this->yellow=this->const_Mat.clone();
     BOOST_ASSERT((this->imgMat.data)&&"read image error");
     this->name=tool::get_name(urlPath);  //
     //this->dirname = name;
@@ -119,6 +120,9 @@ DigtalLocate::DigtalLocate(DigtalLocate *Dig,cv::Rect rect,int id){
     this->name = Dig->name+"_"+to_string(id);
     this->const_Mat=Dig->const_Mat(rect);
     this->imgMat=Dig->imgMat(rect);
+    this->yellow = Dig->yellow(rect);
+    this->green = Dig->green(rect);
+    this->blue = Dig->blue(rect);
     this->_min = Dig->_min(rect);
     this->_max = Dig->_max(rect);
     this->_medium = Dig->_medium(rect);
@@ -129,6 +133,7 @@ DigtalLocate::DigtalLocate(DigtalLocate *Dig,cv::Rect rect,int id){
         this->best_gray = &this->_gray;
     else
         this->best_gray = &this->_max;
+
 
 
 
@@ -227,10 +232,12 @@ string  DigtalLocate::get_char(){
 
     vector<Rect> newcanditaes;
     string result;
-    for(int c=0;c<canditaes.size();c++) {
+    for(uint8_t c=0;c<canditaes.size();c++) {
         DigtalLocate sub = DigtalLocate(this,canditaes[c],c);
         bool ist = sub.reconize_char();
         cv::rectangle(imgMat, canditaes[c], Scalar(0, 255, 0), 3, 1, 0);
+        //cv::rectangle(green, canditaes[c], Scalar(0, 0, 0), 40, 1, 0);
+        cv::rectangle(green, canditaes[c], Scalar(0, 255, 0), 20, 1, 0);
         cv::Mat roiImg_raw  = const_Mat(canditaes[c]);
         tool::DebugOut(STR(sub_char), sub.name, sub.const_Mat);
         Mat best_test;
@@ -302,12 +309,15 @@ string  DigtalLocate::get_char(){
         }
     }
 
+
     if(result.size()!=0){
      //   cout<<result<<endl;
     }
     tool::DebugOut(STR(imgMat), name, imgMat);
-    for(int c=0;c<newcanditaes.size();c++) {
+    for(uint8_t c=0;c<newcanditaes.size();c++) {
         cv::rectangle(imgMat, newcanditaes[c], Scalar(255, 0, 0), 3, 1, 0);
+       // cv::rectangle(blue, newcanditaes[c], Scalar(0, 0, 0), 40, 1, 0);
+        cv::rectangle(blue, newcanditaes[c], Scalar(255, 0, 0), 20, 1, 0);
         cv::Mat roiImg_raw  = const_Mat(newcanditaes[c]);
 //        putText(imgMat,result,Point(30,30),1,1,Scalar(255,255,255),1);  //调试不需要
 
@@ -335,10 +345,10 @@ vector<Rect> DigtalLocate::probably_locate(){
     cv::morphologyEx(combine, combine, cv::MORPH_CLOSE, cv::Mat::ones(5, const_Mat.cols/50, CV_8UC1));  //膨胀与腐蚀
     tool::DebugOut(STR(combine), name, combine);
     canditaes = get_digital_area(combine);
-
-    for(int c=0;c<canditaes.size();c++) {
+    for(unsigned int  c=0;c<canditaes.size();c++) {
         cv::rectangle(imgMat, canditaes[c], Scalar(0, 255, 255), 5, 1, 0);
-
+        //cv::rectangle(yellow, canditaes[c], Scalar(0, 0, 0), 80, 1, 0);
+        cv::rectangle(yellow, canditaes[c], Scalar(0, 255, 255), 80, 1, 0);
         cv::Mat roiImg_raw  = const_Mat(canditaes[c]);
         //tool::DebugOut(STR(first_ROI), name, roiImg_raw);
         //立马输出子图
@@ -347,7 +357,7 @@ vector<Rect> DigtalLocate::probably_locate(){
         string s = sub.get_char();
         //结果
         //调试出去画图结果
-        putText(imgMat,s,Point(canditaes[c].x-50,canditaes[c].y-50),1,10,Scalar(255,255,255),10);
+       // putText(imgMat,s,Point(canditaes[c].x-50,canditaes[c].y-50),1,10,Scalar(255,255,255),10);
         if(s.size()!=0)
             result_ROI.push_back({s,Rect()});
     }
@@ -355,8 +365,11 @@ vector<Rect> DigtalLocate::probably_locate(){
 
 
 
-    out_put_result_mat =  tool::DebugOut(STR(out_resutl), name, imgMat);
 
+    out_put_result_mat =  tool::DebugOut(STR(out_resutl), name, imgMat);
+    tool::DebugOut(STR(yellow), name, yellow);
+    tool::DebugOut(STR(blue), name, blue);
+    tool::DebugOut(STR(green), name, green);
     return std::move(canditaes);
     //构成了candidate　然后画出来
 }
@@ -651,7 +664,7 @@ void DigtalLocate::jujue_char() {
     Mat hist = tool::get_hist_show(vec);
     tool::DebugOut(STR(hist), name, hist);
     Mat scopy = srcMat.clone();
-    for(int i=0;i<candidates.size();i++) {
+    for(uint8_t i=0;i<candidates.size();i++) {
         //cout<<candidates.size()<<endl;
         cv::rectangle(scopy, candidates[i], Scalar(0, 255, 0), 2, 1, 0);
         Mat temp = srcMat(candidates[i]);
@@ -691,7 +704,7 @@ void DigtalLocate::jujue_char() {
 void DigtalLocate::getsub_char(vector<Rect> &candidates) {
     vector<Rect> answer;
     //这里可以使用多线程优化
-    for(int i =0;i<candidates.size();i++) {
+    for(uint8_t i =0;i<candidates.size();i++) {
 
         Mat src = srcMat(candidates[i]);  //获取子图
         // tool::DebugOut(STR(src_s), name,src,dirname,i);
@@ -723,7 +736,7 @@ void DigtalLocate::getsub_char(vector<Rect> &candidates) {
         Mat sub_candid = imgMat.clone();
         vector<Mat> mat_row;
         Mat x = srcMat.clone();
-        for(int c=0;c<sub_canditaes.size();c++) {
+        for(uint8_t c=0;c<sub_canditaes.size();c++) {
 
             Rect a(sub_canditaes[c].x+candidates[i].x,sub_canditaes[c].y+candidates[i].y,sub_canditaes[c].width,sub_canditaes[c].height);
             cv::rectangle(sub_candid, a, Scalar(0, 255, 0), 3, 1, 0);
@@ -735,7 +748,7 @@ void DigtalLocate::getsub_char(vector<Rect> &candidates) {
 
 
 
-        for(int j=0;j<sub_canditaes.size();j++)  {
+        for(uint8_t j=0;j<sub_canditaes.size();j++)  {
           //  int current = sub_canditaes[j].width * sub_canditaes[j].height;
           //  if(current<rect_area_min||sub_canditaes[j].width>0.65*srcMat.cols) continue;
             //内容分析
@@ -902,7 +915,7 @@ void DigtalLocate::extract_char(){
 
     Mat scopy = srcMat.clone();
     bool t = false;
-    for(int i=0;i<candidates.size();i++) {
+    for(uint8_t i=0;i<candidates.size();i++) {
 
         cv::rectangle(scopy, candidates[i], Scalar(0, 255, 255), 2, 1, 0);
         Mat roiImg_raw(gray(candidates[i]));
@@ -1323,11 +1336,11 @@ vector<cv::Rect> DigtalLocate::extra_marge_sub_ara(Mat &src) {
       vector<int> status(candidates.size(), 0);
       if(candidates.size()!=0) {
 
-          for(int i=0;i<candidates.size();++i) {
+          for(uint8_t i=0;i<candidates.size();++i) {
               if(status[i] == 1) continue;
               status[i] = 0;
               Rect target = candidates[i];
-              for(int j=i+1;j<candidates.size();++j) {
+              for(uint8_t j=i+1;j<candidates.size();++j) {
 
                   if(status[j] == 0) {
                       int current_value = candidates[j].y + candidates[j].height / 2;
@@ -1406,7 +1419,7 @@ vector<cv::Rect> DigtalLocate::extra_marge_ara_1(Mat &src) {
     vector<int> status(candidates.size(), 0);
     if(candidates.size()!=0) {
 
-        for(int i=0;i<candidates.size();++i) {
+        for(uint8_t i=0;i<candidates.size();++i) {
             if(status[i] == 1) continue;
             status[i] = 0;
             Rect target = candidates[i];
@@ -1461,7 +1474,7 @@ vector<cv::Rect> DigtalLocate::extrator_edge() {
 
     candidates = extra_marge_ara(edage);
 
-    for(int i=0;i<candidates.size();++i) {
+    for(uint8_t i=0;i<candidates.size();++i) {
         tool::scale_rect(candidates[i],8,8);
         cv::rectangle(imgMat, candidates[i], Scalar(0, 255, 255), 10, 1, 0);
     }
@@ -1540,7 +1553,7 @@ void DigtalLocate::get_pic_rect() {
 
 
     getsub_char(final_candidate);
-    for(int i=0;i<final_candidate.size();i++) {
+    for(uint8_t i=0;i<final_candidate.size();i++) {
         cv::rectangle(imgMat, final_candidate[i], Scalar(0, 255, 0), 3, 1, 0);
         cv::Mat roiImg_raw  = srcMat(final_candidate[i]);
         tool::DebugOut(STR(sub_raw), name, roiImg_raw, dirname, i);

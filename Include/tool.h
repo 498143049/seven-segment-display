@@ -83,7 +83,7 @@ public:
     static string location(Mat &src);
     template <typename  T>
     static vector<vector<double >> radon(Mat src,vector<T> angle_array) {
-        int k, m, n;              /* loop counters */
+        uint16_t k, m, n;              /* loop counters */
         double angle;             /* radian angle value */
         double cosine, sine;      /* cosine and sine of current angle */
 
@@ -121,7 +121,7 @@ public:
 
             for( n = 0;n<width;n++){
                 x = n - xOrigin;
-                xCosTable[2*n]   = (x - 0.25)*cosine;   //由极坐标的知识知道，相对于变换的原点，这个就是得到了该点的横坐标
+               xCosTable[2*n]   = (x - 0.25)*cosine;   //由极坐标的知识知道，相对于变换的原点，这个就是得到了该点的横坐标
                 xCosTable[2*n+1] = (x + 0.25)*cosine;
             }
             for (m = 0; m < height; m++)

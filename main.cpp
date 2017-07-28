@@ -1,9 +1,8 @@
 #include <iostream>
-#include <json/json.h>
+#include "Include/json.h"
 #include <opencv2/opencv.hpp>
 #include "Include/DigtalLocate.h"
 #include "Include/LBP.h"
-#include <opencv2/ximgproc/edge_filter.hpp>
 using namespace std;
 using namespace cv;
 void dealPicGroup(int num, string outputurl,string name)

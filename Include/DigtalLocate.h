@@ -18,9 +18,9 @@
 #include <boost/filesystem.hpp>
 #include "tool.h"
 #include <tuple>
-#include "web_interface.h"
+
 #include "LBP.h"
-#include <opencv2/ml.hpp>　
+#include <opencv2/ml.hpp>
 using namespace cv;
 using namespace std;
 
@@ -79,6 +79,9 @@ public:
     typedef std::function<void (std::string ,std::string)> log_fun;
     cv::Mat imgMat;
     cv::Mat srcMat;
+    cv::Mat yellow;
+    cv::Mat green;
+    cv::Mat blue;
     cv::Mat const_Mat;
     vector<pair<string,cv::Rect>> result_ROI;  //存储最后的结果最后结果
     debug_fun output;

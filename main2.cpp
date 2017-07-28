@@ -1,42 +1,17 @@
 #include <iostream>
-#include <json/json.h>
+#include "json.h"
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include "Include/DigtalLocate.h"
-
-#include <QtWidgets/QApplication>
-
-
-#include <QWebEngineView>
-#include <qtwebengineglobal.h>
-#include <QNetworkProxy>
-#include <QtQml/QQmlApplicationEngine>
-#include <QtQml/QQmlContext>
-#include <QtWebEngineCore>
-#include <qdebug.h>
-#include <QtWebSockets/QWebSocketServer>
-#include <QApplication>
-#include "QtWebSockets/QWebSocket"
-#include <websocketpp/config/asio_no_tls.hpp>
-#include <websocketpp/server.hpp>
-#include "Include/output_server.h"
-typedef websocketpp::server<websocketpp::config::asio> server;
-
-using websocketpp::lib::placeholders::_1;
-using websocketpp::lib::placeholders::_2;
-using websocketpp::lib::bind;
-typedef server::message_ptr message_ptr;
+using namespace cv;
 using namespace std;
-#include "tiny_dnn/tiny_dnn.h"
-
-using namespace tiny_dnn;
-using namespace tiny_dnn::activation;
 using namespace std;
 using namespace cv::ml;
 //#include "Include/widget.h"
 ofstream outfile("../python-svm/outn.txt");
 int main(int argc, char** argv)
 {
+
 //    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 //    QApplication app(argc, argv);
 //
@@ -74,11 +49,13 @@ int main(int argc, char** argv)
 //        cout<<i<<" is ok! \t"<<"cost time :"<<(cvGetTickCount()-time)/(cvGetTickFrequency()*1000)<< "ms"<<endl;
 //    }
 
+
+
     for(int i=0; i<=29;i++) {
         int64_t time = cvGetTickCount();
         DigtalLocate temp =  DigtalLocate("../datasource/ndata/ndata_"+to_string(i)+".jpg",1.1);
         temp.probably_locate();
-        temp.output_joson();
+     //   temp.output_joson();
         cout<<i<<" is ok! \t"<<"cost time :"<<(cvGetTickCount()-time)/(cvGetTickFrequency()*1000)<< "ms"<<endl;
     }
 

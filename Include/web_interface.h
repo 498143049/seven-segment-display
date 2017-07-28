@@ -5,7 +5,7 @@
 #ifndef DIGITAL_LINUX_WEB_INTERFACE_H
 #define DIGITAL_LINUX_WEB_INTERFACE_H
 
-#include <json/json.h>
+#include "json.h"
 #include <string>
 #include<boost/filesystem.hpp>
 #include <boost/regex.hpp>
