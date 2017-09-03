@@ -5,7 +5,7 @@
 #include <opencv2/ml.hpp>
 #include "tiny_dnn/tiny_dnn.h"
 #include "LBP.h"
-
+#include <algorithm>
 using namespace tiny_dnn;
 using namespace tiny_dnn::activation;
 using namespace std;
@@ -133,13 +133,34 @@ DigtalLocate::DigtalLocate(DigtalLocate *Dig,cv::Rect rect,int id){
 
 
 }
+
+void DigtalLocate::recongize_test(){
+    tool::DebugOut(STR(min), name, _min);
+    //中值滤波　
+    Mat out;
+    medianBlur(_gray,out,3);
+    tool::DebugOut(STR(med), name, out);
+    Mat th1;
+    int t = (int)threshold(out,th1,0, 255, CV_THRESH_OTSU|CV_THRESH_BINARY);
+    tool::DebugOut(STR(th1), name, th1);
+    cout<<tool::location(th1)<<endl;
+
+   // Mat best_test = tool::char_threshold2(const_Mat,_gray,name,_max,0);
+   // tool::DebugOut(STR(best_test), name, best_test);
+    //这是使用图割的方式...
+
+}
 Mat DigtalLocate::Get_LBP(){
-    Mat current = tool::Resize(_gray,Size(32,48));
+    Mat gray_s = tool::stretch(_gray);
+    medianBlur(gray_s,gray_s,3);
+    Mat current = tool::Resize(gray_s,Size(32,48));
     tool::DebugOut(STR(gray_t1), name,current);
     LBP LB;
     Size ResImgSiz(8, 16);
     Mat LBPImage;
-    LB.ComputeLBPFeatureVector_Rotation_Uniform(current, ResImgSiz, LBPImage);
+   // LB.ComputeLBPFeatureVector_256(current, ResImgSiz, LBPImage);
+    LB.ComputeLBPFeatureVector_Uniform(current, ResImgSiz, LBPImage);
+   // LB.ComputeLBPFeatureVector_Rotation_Uniform(current, ResImgSiz, LBPImage);
     return std::move(LBPImage);
 }
 bool DigtalLocate::reconize_char(){
@@ -250,8 +271,9 @@ string  DigtalLocate::get_char(){
             tool::DebugOut(STR(finnal6), sub.name, best_test);
 //             best_test = tool::char_threshold(sub.const_Mat,t,sub.name,sub._max,0);
 //             tool::DebugOut(STR(finnal), sub.name, best_test);
-
-            angel = tool::correct_error(best_test, best_angel);  //整体的角度　best_angle 矫正钱
+            Mat canny;
+            angel = tool::correct_error(best_test, angel,canny);  //整体的角度　best_angle 矫正钱
+            tool::DebugOut(STR(canny),sub.name,canny);
 
 //            cout<<angel<<endl;
 //            if(angel==-361) {
@@ -261,11 +283,19 @@ string  DigtalLocate::get_char(){
 //                putText(threshold_diff_c,to_string(angel),Point(0,10),1,1,Scalar(255,0,0));
 //                tool::DebugOut(STR(threshold_diff_c), name, threshold_diff_c);
 //            }
-            Mat ss = tool::get_R_mat(best_test,angel/2.0);
+            double  dangle = 90-angel;
+            if(dangle<=0){
+                dangle = 0;
+                tool::DebugOut(STR(error), sub.name, sub._gray);
+            }
+            Mat ss = tool::get_R_mat(best_test,dangle);
+            Mat sssrc = tool::get_R_mat(sub.const_Mat,dangle);
             ss = splite_char_sub(ss);
             tool::DebugOut(STR(ss_correct_after), sub.name, ss); //ss矫正后
-
-            result += tool::getNOByLine(ss, tool::getLineRange(best_test.rows, best_test.cols), false,angel);
+            tool::DebugOut(STR(ss_correct_after_src), sub.name, sssrc); //ss矫正后
+            result +=tool::location(ss);
+            tool::DebugOut(STR(size_after), sub.name, ss); //ss矫正后
+            //result += tool::getNOByLine(ss, tool::getLineRange(best_test.rows, best_test.cols), false,angel);
             resultArray.push_back(result);
           //  tool::DebugOut(STR(sub_candidates_P), name, roiImg_raw, name, c);
             newcanditaes.push_back(canditaes[c]);
@@ -273,7 +303,7 @@ string  DigtalLocate::get_char(){
     }
 
     if(result.size()!=0){
-        cout<<result<<endl;
+     //   cout<<result<<endl;
     }
     tool::DebugOut(STR(imgMat), name, imgMat);
     for(int c=0;c<newcanditaes.size();c++) {
@@ -309,7 +339,6 @@ vector<Rect> DigtalLocate::probably_locate(){
     for(int c=0;c<canditaes.size();c++) {
         cv::rectangle(imgMat, canditaes[c], Scalar(0, 255, 255), 5, 1, 0);
 
-
         cv::Mat roiImg_raw  = const_Mat(canditaes[c]);
         //tool::DebugOut(STR(first_ROI), name, roiImg_raw);
         //立马输出子图
@@ -317,10 +346,8 @@ vector<Rect> DigtalLocate::probably_locate(){
         DigtalLocate sub = DigtalLocate(this,canditaes[c],c);
         string s = sub.get_char();
         //结果
-
         //调试出去画图结果
-      //  putText(imgMat,s,Point(canditaes[c].x-50,canditaes[c].y-50),1,10,Scalar(255,255,255),10);
-
+        putText(imgMat,s,Point(canditaes[c].x-50,canditaes[c].y-50),1,10,Scalar(255,255,255),10);
         if(s.size()!=0)
             result_ROI.push_back({s,Rect()});
     }
@@ -491,16 +518,21 @@ void DigtalLocate::test_char() {
 
 
 Mat DigtalLocate::splite_char_sub(cv::Mat &src){
-    vector<int> vec = tool::get_col_number(src);
+    vector<int> vec = tool::get_col_number(src,0.7);
     //减去小数点的像素
     //for_each(vec.begin(),vec.end(),[&](int s){s=max(0,s-src.rows/10);});
-    vector<pair<int, int> > vect = tool::get_Area(vec, src.rows);
-    if(vect.size()>=1) {
-        int set_width = vect[0].second - vect[0].first;
-        int set_x = vect[0].first;
-        return src(Rect(set_x,0,set_width,src.rows));
+    //vector<pair<int, int> > vect = tool::get_Area(vec, src.rows);
+    auto one = std::find_if(vec.begin(),vec.end(),[](int i){ return  i>2;});
+    auto two = std::find_if(vec.rbegin(),vec.rend(),[](int i){ return i>2;});
+    int set_x=0;
+    if(one!=vec.end()){
+        set_x = one - vec.begin();
     }
-    return src;
+    int set_width = src.cols - set_x;
+    if(two!=vec.rend()){
+        set_width = src.cols-(two-vec.rbegin())-set_x;
+    }
+    return src(Rect(set_x,0,set_width,src.rows));
 
 }
 vector<cv::Rect> DigtalLocate::splite_char(cv::Mat &src,cv::Rect &group) {
@@ -777,7 +809,8 @@ void DigtalLocate::getsub_char(vector<Rect> &candidates) {
 
             Mat best_test = best_threshold.clone();
             double best_angel;
-            double angel = tool::correct_error(best_test,best_angel);
+            Mat canny;
+            double angel = tool::correct_error(best_test,best_angel,canny);
           //  cvtColor(best_test, best_test, CV_GRAY2BGR);
           //  cout<<best_angel<<endl;
             best_angel=best_angel;
@@ -1213,7 +1246,7 @@ Mat  DigtalLocate::extera_by_edge_diff(Mat &src,std::vector<cv::Rect> &scandidat
 //    img_morphology_ex = img_erode;
 
     output_mat_url.push_back({STR(img_erode),tool::DebugOut(STR(img_erode), name,img_erode)});
-     output_mat_url.push_back({STR(img_morphology_ex_t),tool::DebugOut(STR(img_morphology_ex_t), name,img_morphology_ex)});
+    output_mat_url.push_back({STR(img_morphology_ex_t),tool::DebugOut(STR(img_morphology_ex_t), name,img_morphology_ex)});
 //
 //
 //    cv::findContours(img_morphology_ex, plate_contours,RETR_LIST,CV_CHAIN_APPROX_SIMPLE);

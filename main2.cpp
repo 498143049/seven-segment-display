@@ -79,7 +79,7 @@ int main(int argc, char** argv)
         DigtalLocate temp =  DigtalLocate("../datasource/ndata/ndata_"+to_string(i)+".jpg",1.1);
         temp.probably_locate();
         temp.output_joson();
-       cout<<i<<" is ok! \t"<<"cost time :"<<(cvGetTickCount()-time)/(cvGetTickFrequency()*1000)<< "ms"<<endl;
+        cout<<i<<" is ok! \t"<<"cost time :"<<(cvGetTickCount()-time)/(cvGetTickFrequency()*1000)<< "ms"<<endl;
     }
 
 //    for(int i=0; i<=91;i++) {
@@ -88,6 +88,12 @@ int main(int argc, char** argv)
 //        string s = temp.get_char();
 //
 //        cout<<s<<"||"<<i<<" is ok! \t"<<"cost time :"<<(cvGetTickCount()-time)/(cvGetTickFrequency()*1000)<< "ms"<<endl;
+//    }
+//        for(int i=21; i<=21;i++) {
+//        int64_t time = cvGetTickCount();
+//        DigtalLocate temp =  DigtalLocate("../datasource/sdata/sdata_"+to_string(i)+".jpg",1.1);
+//        temp.recongize_test();
+      //  cout<<i<<" is ok! \t"<<"cost time :"<<(cvGetTickCount()-time)/(cvGetTickFrequency()*1000)<< "ms"<<endl;
 //    }
      outfile.close();
 //    cout<<"all_down"<<endl;

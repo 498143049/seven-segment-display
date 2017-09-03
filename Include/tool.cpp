@@ -89,21 +89,21 @@ void tool::marge(vector<Rect> &candidates){
     }
     candidates.swap(new_candidates);
 }
-vector<int> tool::get_row_number( const Mat& picture ) {
+vector<int> tool::get_row_number( const Mat& picture, double rate) {
 
     vector<int> result(picture.rows,0);
-    for (int i = 0; i < picture.rows; i++)
+    for (int i = 0; i < picture.rows*rate; i++)
         for (int j = 0; j < picture.cols; j++)
             if (picture.at<uchar>(i, j) > 0)
                 result[i] += 1;
     return std::move(result);
 
 }
-vector<int> tool::get_col_number( const Mat& picture ) {
+vector<int> tool::get_col_number( const Mat& picture,double rate ) {
 
     vector<int> result(static_cast<uint64_t>(picture.cols), 0);
     for (int j = 0; j < picture.cols; j++)
-        for (int i = 0; i < picture.rows; i++)
+        for (int i = 0; i < picture.rows*rate; i++)
             if (picture.at<uchar>(i, j) > 0)
                 result[j] += 1;
     return std::move(result);
@@ -587,49 +587,44 @@ void tool::incrementRadon(vector<double> &vt, double pixel, double r) {
 
 //返回的是倾斜的角度
 //输入二值图像,图像原路矫正,而且
-double tool::correct_error(Mat &src,double &best_angle){
+double tool::correct_error(Mat &src,double &best_angle,Mat &canny_dst){
 
-    Mat canny;
     vector<double> max_array; //存储最大值的素组
     vector<double> array_p;   //生成的角度素组P
 
     double angle_Horizontal;  //水平角度
     double angle_vertical;    //竖直角度
 
-    //canny 边缘检测(减少数量可以加速速度)
-    Canny(src,canny,100,300,3);
-    //初始化数组
-    for(int i=-90;i<90;i++) {
-//        double  x= i*0.5;
-//        test.push_back(x);
-        double x= i;
-        array_p.push_back(x/2.0);
-        array_p.push_back(x);
-    }
+    double low_thresh = 0.0;
+    double high_thresh = 0.0;
 
-    //获取最后返回的数组
-    auto s = tool::radon(canny,array_p);
-    //找到每一个角度的最大值
-    for_each(s.begin(),s.end(),[&](vector<double> single){max_array.push_back(*max_element(single.begin(),single.end()));});
+    tool::AdaptiveFindThreshold(src,&low_thresh,&high_thresh);
+    //canny 边缘检测检测边缘更浅
+    Canny(src,canny_dst,low_thresh,high_thresh,3);
+    //初始化数组　
+    //构造角度素组
+    for(int i=-25;i<25;++i)
+        for(int j=0;j<10;++j)
+            array_p.push_back(i+j*0.1);
+
+
+    //获取最后返回的数组　
+    DebugOut("test","canyytest",canny_dst);
+    auto s = tool::radon(canny_dst,array_p);
+    //找到每一个角度的最大值　//为什么不计算累加值
+    for(auto single:s){
+        max_array.push_back(*max_element(single.begin(),single.end()));
+    }
     //角度限制在   60~120 度之间
-    angle_vertical = std::distance(max_element(max_array.begin()+60*2,max_array.begin()+120*2+1),max_array.begin());
-    //
-    auto time2 =  max_element(max_array.begin(),max_array.begin()+5*2+1);
-    auto time3 = max_element(max_array.end()-5*2,max_array.end());
+//    for(auto i:max_array){
+//        cout<<i<<" ";
+//    }
+//    cout<<endl;
+    angle_vertical = std::distance(max_array.begin(),max_element(max_array.begin(),max_array.end()));
 
-    if(*time3>*time2){
-        angle_Horizontal =  std::distance(time3,max_array.end());
-    }
-    else{
-        angle_Horizontal =  std::distance(time2,max_array.begin());
-    }
-    tool::imageRotate2(src,src,-angle_Horizontal/2);
 
-  //  tool::DebugOut(STR(result_s_r), name, answer);
-
-    best_angle=std::distance(max_array.begin(),max_element(max_array.begin(),max_array.end()));
-   // best_angle = angle_vertical;
-    angle_vertical = 90+angle_vertical/2;
+    best_angle=0;
+    angle_vertical = 90-25+angle_vertical/10.0;
     return angle_vertical;
 }
 
@@ -831,3 +826,666 @@ Mat tool::char_threshold(Mat srcMat, Mat gray,string name,Mat max,int type){
 //    imshow("ssssss",result);
     cout<<th3<<endl;
 }
+
+
+Mat tool::char_threshold2(Mat srcMat, Mat gray,string name,Mat max,int type){
+    Mat threshold_value,threshold_value2,threshold_value3,threshold_value4;
+    //
+    Mat binary,binary2;
+    // gray = tool::stretch(gray);
+    DebugOut(STR(gray_t),name,gray);
+    // medianBlur(gray,gray,5);
+    //medianBlur(max,max,5);
+    int t;
+    //if(type==1) {
+    t = (int) threshold(gray, binary, 0, 255, CV_THRESH_OTSU | CV_THRESH_BINARY);
+
+    vector<int> v;
+    v=(vector<int>)gray.reshape(1,1);
+    sort(v.begin(),v.end());
+
+    int th1 = (int)v.size()*0.1;
+    int th2 = t;
+
+    //int th3 = (int)v.size()*0.4;
+    th2=min(th2,254);  //防止超过255
+    threshold(gray,threshold_value2,th2, 255, CV_THRESH_BINARY); //前景
+
+    threshold(gray,threshold_value3,v[th1], 255, CV_THRESH_BINARY); //背景
+   // threshold(max,threshold_value,th3, 255, CV_THRESH_BINARY); //可能的前景
+    threshold_value3=~threshold_value3;
+    DebugOut(STR(threshold_value3),name,threshold_value3);
+
+    threshold_value3.at<Vec3b>(threshold_value3.rows/4,threshold_value3.cols/2) = 255;
+    threshold_value3.at<Vec3b>(threshold_value3.rows/4+1,threshold_value3.cols/2) = 255;
+    threshold_value3.at<Vec3b>(threshold_value3.rows/4,threshold_value3.cols/2+1) = 255;
+    threshold_value3.at<Vec3b>(threshold_value3.rows/4-1,threshold_value3.cols/2) = 255;
+    threshold_value3.at<Vec3b>(threshold_value3.rows/4,threshold_value3.cols/2+1) = 255;
+
+
+    threshold_value3.at<Vec3b>(3*threshold_value3.rows/4,threshold_value3.cols/2) = 255;
+    threshold_value3.at<Vec3b>(3*threshold_value3.rows/4+1,threshold_value3.cols/2) = 255;
+    threshold_value3.at<Vec3b>(3*threshold_value3.rows/4,threshold_value3.cols/2+1) = 255;
+    threshold_value3.at<Vec3b>(3*threshold_value3.rows/4-1,threshold_value3.cols/2) = 255;
+    threshold_value3.at<Vec3b>(3*threshold_value3.rows/4,threshold_value3.cols/2+1) = 255;
+    //int th3 = (int)threshold(gray,threshold_value,0, 255, CV_THRESH_TRIANGLE|CV_THRESH_BINARY);
+    // threshold_value4=~threshold_value3;
+    cv::Mat mask1(srcMat.size(),CV_8UC1,Scalar(1));
+    cv::Mat mask2(srcMat.size(),CV_8UC1,Scalar(2));
+    cv::Mat mask3(srcMat.size(),CV_8UC1,Scalar(3));
+    cv::Mat mask0(srcMat.size(),CV_8UC1,Scalar(0));
+    cv::Mat bgmodle, fgmodel;
+    cv::Mat result(srcMat.size(),CV_8UC1,Scalar(2)); //2可能的背景
+
+    //for debug
+    cv::Mat dmask1(srcMat.size(),CV_8UC3,Scalar(255,255,255));//白色th2 前景
+    cv::Mat dmask2(srcMat.size(),CV_8UC3,Scalar(255,0,0));   //蓝色可能的北京
+    cv::Mat dmask3(srcMat.size(),CV_8UC3,Scalar(0,255,255));//黄色可能的前景
+    cv::Mat dmask0(srcMat.size(),CV_8UC3,Scalar(0,0,0));  //黑色　th3
+
+    cv::Mat dresult(srcMat.size(),CV_8UC3,Scalar(255,0,0)); //2可能的背景
+
+    //dmask3.copyTo(dresult,threshold_value);
+    dmask1.copyTo(dresult,threshold_value2);
+    dmask0.copyTo(dresult,threshold_value3);
+
+    //  cv::imshow("resultsss", threshold_value);
+    //mask3.copyTo(result,threshold_value);
+    mask1.copyTo(result,threshold_value2);
+    mask0.copyTo(result,threshold_value3);
+
+
+    Rect rect;
+    Mat result1;
+    //  cv::compare(result, cv::GC_FGD, result1, cv::CMP_EQ);
+    cv::grabCut(srcMat, result,rect, bgmodle, fgmodel, 20, cv::GC_INIT_WITH_MASK);
+    Mat FGD,PR_FGD,PR_BGD;
+    cv::compare(result, cv::GC_FGD, FGD, cv::CMP_EQ);
+    cv::compare(result, cv::GC_PR_FGD, PR_FGD, cv::CMP_EQ);
+    cv::compare(result, cv::GC_PR_BGD, PR_BGD, cv::CMP_EQ);
+
+    cv::Mat display(srcMat.size(),CV_8UC3,Scalar(0,0,0)); //2可能的背景
+    dmask1.copyTo(display,FGD);
+    dmask2.copyTo(display,PR_BGD);
+    dmask3.copyTo(display,PR_FGD);
+    DebugOut(STR(display),name,display);
+
+
+    DebugOut(STR(mark_grap_cut),name,dresult);
+    return std::move(FGD);
+}
+
+cv::Mat tool::thinImage(const cv::Mat & src, const int maxIterations) {
+    assert(src.type() == CV_8UC1);
+    cv::Mat dst;
+    int width  = src.cols;
+    int height = src.rows;
+    src.copyTo(dst);
+    int count = 0;  //记录迭代次数
+    while (true)
+    {
+        count++;
+        if (maxIterations != -1 && count > maxIterations) //限制次数并且迭代次数到达
+            break;
+        std::vector<uchar *> mFlag; //用于标记需要删除的点
+        //对点标记
+        for (int i = 0; i < height ;++i)
+        {
+            uchar * p = dst.ptr<uchar>(i);
+            for (int j = 0; j < width; ++j)
+            {
+                //如果满足四个条件，进行标记
+                //  p9 p2 p3
+                //  p8 p1 p4
+                //  p7 p6 p5
+                uchar p1 = p[j];
+                if (p1 != 1) continue;
+                uchar p4 = (j == width - 1) ? 0 : *(p + j + 1);
+                uchar p8 = (j == 0) ? 0 : *(p + j - 1);
+                uchar p2 = (i == 0) ? 0 : *(p - dst.step + j);
+                uchar p3 = (i == 0 || j == width - 1) ? 0 : *(p - dst.step + j + 1);
+                uchar p9 = (i == 0 || j == 0) ? 0 : *(p - dst.step + j - 1);
+                uchar p6 = (i == height - 1) ? 0 : *(p + dst.step + j);
+                uchar p5 = (i == height - 1 || j == width - 1) ? 0 : *(p + dst.step + j + 1);
+                uchar p7 = (i == height - 1 || j == 0) ? 0 : *(p + dst.step + j - 1);
+                if ((p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9) >= 2 && (p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9) <= 6)
+                {
+                    int ap = 0;
+                    if (p2 == 0 && p3 == 1) ++ap;
+                    if (p3 == 0 && p4 == 1) ++ap;
+                    if (p4 == 0 && p5 == 1) ++ap;
+                    if (p5 == 0 && p6 == 1) ++ap;
+                    if (p6 == 0 && p7 == 1) ++ap;
+                    if (p7 == 0 && p8 == 1) ++ap;
+                    if (p8 == 0 && p9 == 1) ++ap;
+                    if (p9 == 0 && p2 == 1) ++ap;
+
+                    if (ap == 1 && p2 * p4 * p6 == 0 && p4 * p6 * p8 == 0)
+                    {
+                        //标记
+                        mFlag.push_back(p+j);
+                    }
+                }
+            }
+        }
+
+        //将标记的点删除
+        for (std::vector<uchar *>::iterator i = mFlag.begin(); i != mFlag.end(); ++i)
+        {
+            **i = 0;
+        }
+
+        //直到没有点满足，算法结束
+        if (mFlag.empty())
+        {
+            break;
+        }
+        else
+        {
+            mFlag.clear();//将mFlag清空
+        }
+
+        //对点标记
+        for (int i = 0; i < height; ++i)
+        {
+            uchar * p = dst.ptr<uchar>(i);
+            for (int j = 0; j < width; ++j)
+            {
+                //如果满足四个条件，进行标记
+                //  p9 p2 p3
+                //  p8 p1 p4
+                //  p7 p6 p5
+                uchar p1 = p[j];
+                if (p1 != 1) continue;
+                uchar p4 = (j == width - 1) ? 0 : *(p + j + 1);
+                uchar p8 = (j == 0) ? 0 : *(p + j - 1);
+                uchar p2 = (i == 0) ? 0 : *(p - dst.step + j);
+                uchar p3 = (i == 0 || j == width - 1) ? 0 : *(p - dst.step + j + 1);
+                uchar p9 = (i == 0 || j == 0) ? 0 : *(p - dst.step + j - 1);
+                uchar p6 = (i == height - 1) ? 0 : *(p + dst.step + j);
+                uchar p5 = (i == height - 1 || j == width - 1) ? 0 : *(p + dst.step + j + 1);
+                uchar p7 = (i == height - 1 || j == 0) ? 0 : *(p + dst.step + j - 1);
+
+                if ((p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9) >= 2 && (p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9) <= 6)
+                {
+                    int ap = 0;
+                    if (p2 == 0 && p3 == 1) ++ap;
+                    if (p3 == 0 && p4 == 1) ++ap;
+                    if (p4 == 0 && p5 == 1) ++ap;
+                    if (p5 == 0 && p6 == 1) ++ap;
+                    if (p6 == 0 && p7 == 1) ++ap;
+                    if (p7 == 0 && p8 == 1) ++ap;
+                    if (p8 == 0 && p9 == 1) ++ap;
+                    if (p9 == 0 && p2 == 1) ++ap;
+
+                    if (ap == 1 && p2 * p4 * p8 == 0 && p2 * p6 * p8 == 0)
+                    {
+                        //标记
+                        mFlag.push_back(p+j);
+                    }
+                }
+            }
+        }
+
+        //将标记的点删除
+        for (std::vector<uchar *>::iterator i = mFlag.begin(); i != mFlag.end(); ++i)
+        {
+            **i = 0;
+        }
+
+        //直到没有点满足，算法结束
+        if (mFlag.empty())
+        {
+            break;
+        }
+        else
+        {
+            mFlag.clear();//将mFlag清空
+        }
+    }
+    return dst;
+}
+void tool::thin(const Mat &src, Mat &dst, const int iterations)
+{
+    const int height =src.rows -1;
+    const int width  =src.cols -1;
+
+    //拷贝一个数组给另一个数组
+    if(src.data != dst.data)
+    {
+        src.copyTo(dst);
+    }
+
+
+    int n = 0,i = 0,j = 0;
+    Mat tmpImg;
+    uchar *pU, *pC, *pD;
+    bool isFinished = false;
+
+    for(n=0; n<iterations; n++)
+    {
+        dst.copyTo(tmpImg);
+        isFinished =false;   //一次 先行后列扫描 开始
+        //扫描过程一 开始
+        for(i=1; i<height;  i++)
+        {
+            pU = tmpImg.ptr<uchar>(i-1);
+            pC = tmpImg.ptr<uchar>(i);
+            pD = tmpImg.ptr<uchar>(i+1);
+            for(int j=1; j<width; j++)
+            {
+                if(pC[j] > 0)
+                {
+                    int ap=0;
+                    int p2 = (pU[j] >0);
+                    int p3 = (pU[j+1] >0);
+                    if (p2==0 && p3==1)
+                    {
+                        ap++;
+                    }
+                    int p4 = (pC[j+1] >0);
+                    if(p3==0 && p4==1)
+                    {
+                        ap++;
+                    }
+                    int p5 = (pD[j+1] >0);
+                    if(p4==0 && p5==1)
+                    {
+                        ap++;
+                    }
+                    int p6 = (pD[j] >0);
+                    if(p5==0 && p6==1)
+                    {
+                        ap++;
+                    }
+                    int p7 = (pD[j-1] >0);
+                    if(p6==0 && p7==1)
+                    {
+                        ap++;
+                    }
+                    int p8 = (pC[j-1] >0);
+                    if(p7==0 && p8==1)
+                    {
+                        ap++;
+                    }
+                    int p9 = (pU[j-1] >0);
+                    if(p8==0 && p9==1)
+                    {
+                        ap++;
+                    }
+                    if(p9==0 && p2==1)
+                    {
+                        ap++;
+                    }
+                    if((p2+p3+p4+p5+p6+p7+p8+p9)>1 && (p2+p3+p4+p5+p6+p7+p8+p9)<7)
+                    {
+                        if(ap==1)
+                        {
+                            if((p2*p4*p6==0)&&(p4*p6*p8==0))
+                            {
+                                dst.ptr<uchar>(i)[j]=0;
+                                isFinished = true;
+                            }
+
+                            //   if((p2*p4*p8==0)&&(p2*p6*p8==0))
+                            //    {
+                            //         dst.ptr<uchar>(i)[j]=0;
+                            //         isFinished =TRUE;
+                            //    }
+
+                        }
+                    }
+                }
+
+            } //扫描过程一 结束
+
+
+            dst.copyTo(tmpImg);
+            //扫描过程二 开始
+            for(i=1; i<height;  i++)  //一次 先行后列扫描 开始
+            {
+                pU = tmpImg.ptr<uchar>(i-1);
+                pC = tmpImg.ptr<uchar>(i);
+                pD = tmpImg.ptr<uchar>(i+1);
+                for(int j=1; j<width; j++)
+                {
+                    if(pC[j] > 0)
+                    {
+                        int ap=0;
+                        int p2 = (pU[j] >0);
+                        int p3 = (pU[j+1] >0);
+                        if (p2==0 && p3==1)
+                        {
+                            ap++;
+                        }
+                        int p4 = (pC[j+1] >0);
+                        if(p3==0 && p4==1)
+                        {
+                            ap++;
+                        }
+                        int p5 = (pD[j+1] >0);
+                        if(p4==0 && p5==1)
+                        {
+                            ap++;
+                        }
+                        int p6 = (pD[j] >0);
+                        if(p5==0 && p6==1)
+                        {
+                            ap++;
+                        }
+                        int p7 = (pD[j-1] >0);
+                        if(p6==0 && p7==1)
+                        {
+                            ap++;
+                        }
+                        int p8 = (pC[j-1] >0);
+                        if(p7==0 && p8==1)
+                        {
+                            ap++;
+                        }
+                        int p9 = (pU[j-1] >0);
+                        if(p8==0 && p9==1)
+                        {
+                            ap++;
+                        }
+                        if(p9==0 && p2==1)
+                        {
+                            ap++;
+                        }
+                        if((p2+p3+p4+p5+p6+p7+p8+p9)>1 && (p2+p3+p4+p5+p6+p7+p8+p9)<7)
+                        {
+                            if(ap==1)
+                            {
+                                //   if((p2*p4*p6==0)&&(p4*p6*p8==0))
+                                //   {
+                                //         dst.ptr<uchar>(i)[j]=0;
+                                //         isFinished =TRUE;
+                                //    }
+
+                                if((p2*p4*p8==0)&&(p2*p6*p8==0))
+                                {
+                                    dst.ptr<uchar>(i)[j]=0;
+                                    isFinished = true;
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+
+            } //一次 先行后列扫描完成
+            //如果在扫描过程中没有删除点，则提前退出
+            if(isFinished == false)
+            {
+                break;
+            }
+        }
+
+    }
+}
+//如果是1的话,直接输出结果 //输入处理过的二值图片
+#define  need_pixels 2
+/**
+ *             HORIZ_UP
+ *
+ * VERT_LEFT_UP          VERT_RIGHT_UP
+ *
+ *             HORIZ_MID
+ *
+ * VERT_LEFT_DOWN         VERT_RIGHT_DOWN
+ *
+ *             HORIZ_DOWN
+ *
+ */
+#define HORIZ_UP 1
+#define VERT_LEFT_UP 2
+#define VERT_RIGHT_UP 4
+#define HORIZ_MID 8
+#define VERT_LEFT_DOWN 16
+#define VERT_RIGHT_DOWN 32
+#define HORIZ_DOWN 64
+#define ALL_SEGS 127
+#define DECIMAL 128
+#define MINUS 256
+
+/* digits */
+#define D_OTHER_SIX (ALL_SEGS & ~VERT_LEFT_UP)
+#define D_U (ALL_SEGS & ~(HORIZ_MID |HORIZ_UP) )
+#define D_P (ALL_SEGS & ~(HORIZ_DOWN |VERT_RIGHT_DOWN) )
+#define D_H (ALL_SEGS & ~(HORIZ_UP |HORIZ_DOWN) )
+#define Mid (ALL_SEGS & ~(HORIZ_UP |HORIZ_DOWN|VERT_LEFT_UP|VERT_RIGHT_UP|VERT_LEFT_DOWN|VERT_RIGHT_DOWN) )
+
+
+#define D_ZERO (ALL_SEGS & ~HORIZ_MID)
+#define D_ONE (VERT_RIGHT_UP | VERT_RIGHT_DOWN)
+#define D_TWO (ALL_SEGS & ~(VERT_LEFT_UP | VERT_RIGHT_DOWN))
+#define D_THREE (ALL_SEGS & ~(VERT_LEFT_UP | VERT_LEFT_DOWN))
+#define D_FOUR (ALL_SEGS & ~(HORIZ_UP | VERT_LEFT_DOWN | HORIZ_DOWN))
+#define D_FIVE (ALL_SEGS & ~(VERT_RIGHT_UP | VERT_LEFT_DOWN))
+#define D_SIX (ALL_SEGS & ~VERT_RIGHT_UP)
+#define D_SEVEN (HORIZ_UP | VERT_RIGHT_UP | VERT_RIGHT_DOWN)
+#define D_ALTSEVEN (VERT_LEFT_UP | D_SEVEN)
+#define D_EIGHT ALL_SEGS
+#define D_NINE (ALL_SEGS & ~VERT_LEFT_DOWN)
+#define D_ALTNINE (ALL_SEGS & ~(VERT_LEFT_DOWN | HORIZ_DOWN))
+#define D_DECIMAL DECIMAL
+#define D_MINUS MINUS
+#define D_HEX_A (ALL_SEGS & ~HORIZ_DOWN)
+#define D_HEX_b (ALL_SEGS & ~(HORIZ_UP | VERT_RIGHT_UP))
+#define D_HEX_C (ALL_SEGS & ~(VERT_RIGHT_UP | HORIZ_MID | VERT_RIGHT_DOWN))
+#define D_HEX_c (HORIZ_MID | VERT_LEFT_DOWN | HORIZ_DOWN)
+#define D_HEX_d (ALL_SEGS & ~(HORIZ_UP | VERT_LEFT_UP))
+#define D_HEX_E (ALL_SEGS & ~(VERT_RIGHT_UP | VERT_RIGHT_DOWN))
+#define D_HEX_F (ALL_SEGS & ~(VERT_RIGHT_UP | VERT_RIGHT_DOWN | HORIZ_DOWN))
+#define D_UNKNOWN 0
+
+
+string tool::location(Mat &src){
+    float heightDivWidth = (float)src.rows/src.cols;
+    if (heightDivWidth > ONE_HIGHT_WIDTH_RATE) //还需要验证一下
+    {
+        double t = cv::mean(src)[0];
+        if(t>90) {
+            return "1";
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    //读取图片
+    //模板滤波
+    //if(src.rows<40) return " ";
+     Mat templates = imread("../datasource/template/template.jpg",IMREAD_GRAYSCALE); //灰度图
+    Size targetsize(src.cols, src.rows);
+    resize(templates,templates,targetsize);
+    src = src&templates;
+
+
+    uint8_t type;
+    int middle=0, quarter=0, three_quarters=0; /* scanlines */
+    //if(width/heiht<2.3) return "1";
+    int d_height=src.rows; /* height of digit */
+    int third=1; /* in which third we are */
+    int half;
+    int found_pixels=0; /* how many pixels are already found */
+    middle = src.cols/2;
+    for(int i=0;i<src.rows;i++){
+        uchar * pData1=src.ptr<uchar>(i);
+        if(pData1[middle]>1){
+            found_pixels++;
+          //  pData1[middle]=0;
+
+        }
+        //判断3个格子并记录
+        /* pixels in first third count towards upper segment */
+        if(i >= d_height/3 && third == 1) {
+            if(found_pixels >= need_pixels) {
+                type |= HORIZ_UP; /* add upper segment */
+            }
+            found_pixels = 0;
+            third++;
+        } else if(i>=2*d_height/3 && third == 2) {
+            /* pixels in second third count towards middle segment */
+            if(found_pixels >= need_pixels) {
+                type |= HORIZ_MID; /* add middle segment */
+            }
+            found_pixels = 0;
+            third++;
+        }
+    }
+    /* found_pixels contains pixels of last third */
+    if(found_pixels >= need_pixels) {
+        type |= HORIZ_DOWN; /* add lower segment */
+    }
+    found_pixels = 0;
+    half=1; /* in which half we are */
+    quarter = src.rows/4;
+
+    //第一个竖线
+    uchar * pData1=src.ptr<uchar>(quarter);
+    for (int j=0; j<src.cols; ++j) {
+        if(pData1[j]>1) {
+            found_pixels++;
+        }
+        if(j >= middle && half == 1) {
+            if(found_pixels >= need_pixels) {
+                type |= VERT_LEFT_UP;
+            }
+            found_pixels = 0;
+            half++;
+        }
+    }
+    if(found_pixels >= need_pixels) {
+        type |= VERT_RIGHT_UP;
+    }
+    found_pixels = 0;
+    half = 1;
+    /* check lower vertical segments */
+    half=1; /* in which half we are */
+    three_quarters = 3*src.rows/ 4;
+    pData1=src.ptr<uchar>(three_quarters);
+    for (int j=0; j<src.cols; ++j) {
+        if(pData1[j]>1) {
+            found_pixels++;
+        }
+        if(j >= middle && half == 1) {
+            if(found_pixels >= need_pixels) {
+                type |= VERT_LEFT_DOWN;
+            }
+            found_pixels = 0;
+            half++;
+        }
+    }
+    if(found_pixels >= need_pixels) {
+        type |= VERT_RIGHT_DOWN;
+    }
+  //  cout<<bitset<sizeof(int)*8>(type)<<endl;
+    found_pixels = 0;
+    switch(type) {
+        case D_ZERO: return "0"; break;
+        case D_ONE: return "1"; break;
+        case D_TWO: return "2"; break;
+        case D_THREE: return "3"; break;
+        case D_FOUR: return "4"; break;
+        case D_FIVE: return "5"; break;
+        case D_SIX: return "6"; break;
+        case D_SEVEN: /* fallthrough */
+        case D_ALTSEVEN: return "7"; break;
+        case D_EIGHT: return "8"; break;
+        case D_NINE: /* fallthrough */
+        case D_ALTNINE: return "9"; break;
+        case D_DECIMAL: return "."; break;
+        case D_MINUS: return "-"; break;
+        case D_HEX_A: return "a"; break;
+        case D_HEX_b: return "b"; break;
+        case D_HEX_C: /* fallthrough */
+        case D_HEX_c: return "c"; break;
+        case D_HEX_d: return "d"; break;
+        case D_HEX_E: return "e"; break;
+        case D_HEX_F: return "f"; break;
+        case D_U: return "U";break;
+        case D_OTHER_SIX: return "6"; break;
+        case D_P:return "P"; break;
+        case D_H:return "H"; break;
+        case Mid:return "-"; break;
+        default: return "X";
+    }
+    //根据type 判断
+}
+// 仿照matlab，自适应求高低两个门限
+void _AdaptiveFindThreshold(CvMat *dx, CvMat *dy, double *low, double *high)
+{
+    CvSize size;
+    IplImage *imge=0;
+    int i,j;
+    CvHistogram *hist;
+    int hist_size = 255;
+    float range_0[]={0,256};
+    float* ranges[] = { range_0 };
+    double PercentOfPixelsNotEdges = 0.5;//调整的参数
+    size = cvGetSize(dx);
+    imge = cvCreateImage(size, IPL_DEPTH_32F, 1);
+    // 计算边缘的强度, 并存于图像中
+    float maxv = 0;
+    for(i = 0; i < size.height; i++ )
+    {
+        const short* _dx = (short*)(dx->data.ptr + dx->step*i);
+        const short* _dy = (short*)(dy->data.ptr + dy->step*i);
+        float* _image = (float *)(imge->imageData + imge->widthStep*i);
+        for(j = 0; j < size.width; j++)
+        {
+            _image[j] = (float)(abs(_dx[j]) + abs(_dy[j]));
+            maxv = maxv < _image[j] ? _image[j]: maxv;
+
+        }
+    }
+    if(maxv == 0){
+        *high = 0;
+        *low = 0;
+        cvReleaseImage( &imge );
+        return;
+    }
+
+    // 计算直方图
+    range_0[1] = maxv;
+    hist_size = (int)(hist_size > maxv ? maxv:hist_size);
+    hist = cvCreateHist(1, &hist_size, CV_HIST_ARRAY, ranges, 1);
+    cvCalcHist( &imge, hist, 0, NULL );
+    int total = (int)(size.height * size.width * PercentOfPixelsNotEdges);
+    float sum=0;
+    int icount = hist->mat.dim[0].size;
+
+    float *h = (float*)cvPtr1D( hist->bins, 0 );
+    for(i = 0; i < icount; i++)
+    {
+        sum += h[i];
+        if( sum > total )
+            break;
+    }
+    // 计算高低门限
+    *high = (i+1) * maxv / hist_size ;
+    *low = *high * 0.4;
+    cvReleaseImage( &imge );
+    cvReleaseHist(&hist);
+}
+//自适应canny 参数
+void tool::AdaptiveFindThreshold(const Mat image, double *low, double *high, int aperture_size)
+{
+    cv::Mat src = image;
+    const int cn = src.channels();
+    cv::Mat dx(src.rows, src.cols, CV_16SC(cn));
+    cv::Mat dy(src.rows, src.cols, CV_16SC(cn));
+
+    //使用soble 得到边缘
+    cv::Sobel(src, dx, CV_16S, 1, 0, aperture_size, 1, 0, cv::BORDER_REPLICATE);
+    cv::Sobel(src, dy, CV_16S, 0, 1, aperture_size, 1, 0, cv::BORDER_REPLICATE);
+
+    CvMat _dx = dx, _dy = dy;
+    _AdaptiveFindThreshold(&_dx, &_dy, low, high);
+
+}
+
+

@@ -13,22 +13,23 @@ void dealPicGroup(int num, string outputurl,string name)
 }
 #define  PNumAll 593
 #define  NNumAll 371
-#define  Pnum 400 //
-#define  Nnum 240  //
+#define  Pnum 400 // 400
+#define  Nnum 240  // 240
 using namespace ml;
 static Ptr<ml::SVM> svm = ml::SVM::create();
 void train( Mat_<float> trainData,Mat_<float> labels,vector<float>weight) {
 
     svm->setType(ml::SVM::C_SVC);
-    svm->setGamma(3.5);
-    svm->setKernel(ml::SVM::RBF);
+ //   svm->setGamma(3.5);
+    svm->setKernel(ml::SVM::LINEAR);
     svm->setC(15);
     Mat w(weight);
     svm->setClassWeights(w);
 //    svm->train(trainData,ml::ROW_SAMPLE,labels);
     auto data = cv::ml::TrainData::create(trainData,ml::ROW_SAMPLE,labels,noArray(),noArray());
-    auto c = ParamGrid(0.01,1,1.04);
-    auto gamma = ParamGrid(0.01,1,1.04);
+    auto c = ParamGrid(0.001,0.1,1.04);
+    auto gamma = ParamGrid(1,1,0);
+//    auto gamma = ParamGrid(0.01,1,1.04);
     auto p = ParamGrid(1,1,0);
     auto nu = ParamGrid(1,1,0);
     auto coeff = ParamGrid(1,1,0);
@@ -71,7 +72,7 @@ void trainwap(){
         else
             cout<<i<<endl;
     }
-    cout<<count<<(double)count/s2.size()<<endl;
+    cout<<count<<"||"<<(double)count/s2.size()<<endl;
 }
 void test(){
     DigtalLocate a = DigtalLocate("../datasource/ppdata/ppdata_"+to_string(1)+".jpg",1.1);
@@ -85,7 +86,7 @@ void test_all(){
     double  count=0;
     double  num=0;
     Ptr<SVM> svm=ml::StatModel::load<SVM>("../svm-model/digtal_binary.xml");
-    for(int i=0; i<=NNumAll;i++) {
+    for(int i=Nnum+1; i<=NNumAll;i++) {
         DigtalLocate a = DigtalLocate("../datasource/nnndata/nnndata_"+to_string(i)+".jpg",1.1);
 
         Mat ans;
@@ -95,9 +96,10 @@ void test_all(){
             tool::DebugOut(STR(TS),to_string(i)+'N',a.imgMat);
             count++;
         }
+     //   cout<<i<<endl;
         num++;
     }
-    for(int i=0; i<=PNumAll;i++) {
+    for(int i=Pnum+1; i<=PNumAll;i++) {
         DigtalLocate a = DigtalLocate("../datasource/pppdata/pppdata_"+to_string(i)+".jpg",1.1);
         Mat ans;
         svm->predict(a.Get_LBP(),ans);
@@ -106,6 +108,7 @@ void test_all(){
             tool::DebugOut(STR(TS),to_string(i)+'P',a.imgMat);
             count++;
         }
+
         num++;
     }
 

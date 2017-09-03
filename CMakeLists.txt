@@ -40,12 +40,20 @@ find_package(Qt5Core  REQUIRED)
 
 include_directories("include")
 
-
+set(SOURCE_FILES_train main.cpp Include/WatershedSegmenter.hpp  Include/LBP.CPP Include/DigtalLocate.cpp  Include/Histogram1D.cpp  Include/tool.cpp Include/web_interface.cpp Include/output_server.cpp )
 set(SOURCE_FILES main2.cpp Include/WatershedSegmenter.hpp  Include/LBP.CPP Include/DigtalLocate.cpp  Include/Histogram1D.cpp  Include/tool.cpp Include/web_interface.cpp Include/output_server.cpp )
+
+set(SOURCE_FILES1 main3.cpp Include/WatershedSegmenter.hpp  Include/LBP.CPP Include/DigtalLocate.cpp  Include/Histogram1D.cpp  Include/tool.cpp Include/web_interface.cpp Include/output_server.cpp )
+
+set(SOURCE_FILES_recognize recognize.cpp Include/WatershedSegmenter.hpp  Include/LBP.CPP Include/DigtalLocate.cpp  Include/Histogram1D.cpp  Include/tool.cpp Include/web_interface.cpp Include/output_server.cpp )
 
 add_subdirectory(test)
 
 add_executable(digital_linux_t ${SOURCE_FILES})
+add_executable(digital_linux_test_correcange ${SOURCE_FILES1})
+add_executable(digital_linux_train ${SOURCE_FILES_train})
+add_executable(digital_linux_recognize ${SOURCE_FILES_recognize})
+
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "  -Wextra -Wpedantic -pthread ${CMAKE_CXX_FLAGS}")
@@ -56,6 +64,23 @@ qt5_use_modules(digital_linux_t Core Widgets Gui  WebEngine WebEngineWidgets Web
 TARGET_LINK_LIBRARIES(digital_linux_t ${Boost_LIBRARIES} )
 target_link_libraries(digital_linux_t ${OpenCV_LIBS})
 target_link_libraries(digital_linux_t libjsoncpp.a)
+
+
+qt5_use_modules(digital_linux_test_correcange Core Widgets Gui  WebEngine WebEngineWidgets WebChannel WebSockets)
+TARGET_LINK_LIBRARIES(digital_linux_test_correcange ${Boost_LIBRARIES} )
+target_link_libraries(digital_linux_test_correcange ${OpenCV_LIBS})
+target_link_libraries(digital_linux_test_correcange libjsoncpp.a)
+
+qt5_use_modules(digital_linux_train Core Widgets Gui  WebEngine WebEngineWidgets WebChannel WebSockets)
+TARGET_LINK_LIBRARIES(digital_linux_train ${Boost_LIBRARIES} )
+target_link_libraries(digital_linux_train ${OpenCV_LIBS})
+target_link_libraries(digital_linux_train libjsoncpp.a)
+
+qt5_use_modules(digital_linux_recognize Core Widgets Gui  WebEngine WebEngineWidgets WebChannel WebSockets)
+TARGET_LINK_LIBRARIES(digital_linux_recognize ${Boost_LIBRARIES} )
+target_link_libraries(digital_linux_recognize ${OpenCV_LIBS})
+target_link_libraries(digital_linux_recognize libjsoncpp.a)
+
 #target_link_libraries(digital_linux_t ${TinyDNN_LIBRARIES} ${TinyDNN_LIBRARY_DIRS} )
 
 
