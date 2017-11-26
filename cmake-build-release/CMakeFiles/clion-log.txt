@@ -1,0 +1,23 @@
+"D:\CLion 2017.2\bin\cmake\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Release -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - MinGW Makefiles" F:\project\windows_digtal\seven-segment-display
+-- OpenCV ARCH: x64
+-- OpenCV RUNTIME: mingw
+-- OpenCV STATIC: ON
+-- Found OpenCV 3.2.0 in F:/lib_win/opencv/mingw/install/x64/mingw/lib
+-- You might need to add F:/lib_win/opencv/mingw/install/x64/mingw/bin to your PATH to be able to run your applications.
+-- Boost version: 1.64.0
+-- Found the following Boost libraries:
+--   system
+--   filesystem
+--   regex
+-- OpenCV ARCH: x64
+-- OpenCV RUNTIME: mingw
+-- OpenCV STATIC: ON
+-- Found OpenCV 3.2.0 in F:/lib_win/opencv/mingw/install/x64/mingw/lib
+-- You might need to add F:/lib_win/opencv/mingw/install/x64/mingw/bin to your PATH to be able to run your applications.
+-- Boost version: 1.64.0
+-- Found the following Boost libraries:
+--   system
+--   filesystem
+-- Configuring done
+-- Generating done
+-- Build files have been written to: F:/project/windows_digtal/seven-segment-display/cmake-build-release

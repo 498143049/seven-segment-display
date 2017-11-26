@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="digital_linux_t"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\lib_win\;CMake Files\..\..\..\lib_win\opencv\;CMake Files\..\..\..\lib_win\opencv\mingw\;CMake Files\..\..\..\lib_win\opencv\mingw\install\;CMake Files\..\..\..\lib_win\opencv\mingw\install\x64\;CMake Files\..\..\..\lib_win\opencv\mingw\install\x64\mingw\;CMake Files\..\..\..\lib_win\opencv\mingw\install\x64\mingw\lib\;CMake Files\test\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="F:/project/windows_digtal/seven-segment-display/cmake-build-release"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="digital_linux_test_correcange">
+				<Option output="F:/project/windows_digtal/seven-segment-display/cmake-build-release/digital_linux_test_correcange.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/project/windows_digtal/seven-segment-display/cmake-build-release"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="F:/lib_win/opencv/mingw/install/include"/>
+					<Add directory="F:/lib_win/opencv/mingw/install/include/opencv"/>
+					<Add directory="F:/lib_win/boost_1_64_0"/>
+					<Add directory="F:/project/windows_digtal/seven-segment-display/include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/backward"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include-fixed"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 digital_linux_test_correcange"/>
+					<CompileFile command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="digital_linux_test_correcange/fast">
+				<Option output="F:/project/windows_digtal/seven-segment-display/cmake-build-release/digital_linux_test_correcange.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/project/windows_digtal/seven-segment-display/cmake-build-release"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="F:/lib_win/opencv/mingw/install/include"/>
+					<Add directory="F:/lib_win/opencv/mingw/install/include/opencv"/>
+					<Add directory="F:/lib_win/boost_1_64_0"/>
+					<Add directory="F:/project/windows_digtal/seven-segment-display/include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/backward"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include-fixed"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 digital_linux_test_correcange/fast"/>
+					<CompileFile command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="digital_linux_t">
+				<Option output="F:/project/windows_digtal/seven-segment-display/cmake-build-release/digital_linux_t.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/project/windows_digtal/seven-segment-display/cmake-build-release"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="F:/lib_win/opencv/mingw/install/include"/>
+					<Add directory="F:/lib_win/opencv/mingw/install/include/opencv"/>
+					<Add directory="F:/lib_win/boost_1_64_0"/>
+					<Add directory="F:/project/windows_digtal/seven-segment-display/include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/backward"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include-fixed"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 digital_linux_t"/>
+					<CompileFile command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="digital_linux_t/fast">
+				<Option output="F:/project/windows_digtal/seven-segment-display/cmake-build-release/digital_linux_t.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/project/windows_digtal/seven-segment-display/cmake-build-release"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="F:/lib_win/opencv/mingw/install/include"/>
+					<Add directory="F:/lib_win/opencv/mingw/install/include/opencv"/>
+					<Add directory="F:/lib_win/boost_1_64_0"/>
+					<Add directory="F:/project/windows_digtal/seven-segment-display/include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/backward"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include-fixed"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 digital_linux_t/fast"/>
+					<CompileFile command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="digital_linux_train">
+				<Option output="F:/project/windows_digtal/seven-segment-display/cmake-build-release/digital_linux_train.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/project/windows_digtal/seven-segment-display/cmake-build-release"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="F:/lib_win/opencv/mingw/install/include"/>
+					<Add directory="F:/lib_win/opencv/mingw/install/include/opencv"/>
+					<Add directory="F:/lib_win/boost_1_64_0"/>
+					<Add directory="F:/project/windows_digtal/seven-segment-display/include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/backward"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include-fixed"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 digital_linux_train"/>
+					<CompileFile command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="digital_linux_train/fast">
+				<Option output="F:/project/windows_digtal/seven-segment-display/cmake-build-release/digital_linux_train.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/project/windows_digtal/seven-segment-display/cmake-build-release"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="F:/lib_win/opencv/mingw/install/include"/>
+					<Add directory="F:/lib_win/opencv/mingw/install/include/opencv"/>
+					<Add directory="F:/lib_win/boost_1_64_0"/>
+					<Add directory="F:/project/windows_digtal/seven-segment-display/include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/backward"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include-fixed"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 digital_linux_train/fast"/>
+					<CompileFile command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="F:/project/windows_digtal/seven-segment-display/cmake-build-release"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="F:/project/windows_digtal/seven-segment-display/cmake-build-release"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="testfile">
+				<Option output="F:/project/windows_digtal/seven-segment-display/cmake-build-release/test/testfile.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/project/windows_digtal/seven-segment-display/cmake-build-release/test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="F:/lib_win/opencv/mingw/install/include"/>
+					<Add directory="F:/lib_win/opencv/mingw/install/include/opencv"/>
+					<Add directory="F:/lib_win/boost_1_64_0"/>
+					<Add directory="F:/project/windows_digtal/seven-segment-display/include"/>
+					<Add directory="F:/project/windows_digtal/seven-segment-display/test/../include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/backward"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include-fixed"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/test/Makefile&quot;  VERBOSE=1 testfile"/>
+					<CompileFile command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="testfile/fast">
+				<Option output="F:/project/windows_digtal/seven-segment-display/cmake-build-release/test/testfile.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/project/windows_digtal/seven-segment-display/cmake-build-release/test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="F:/lib_win/opencv/mingw/install/include"/>
+					<Add directory="F:/lib_win/opencv/mingw/install/include/opencv"/>
+					<Add directory="F:/lib_win/boost_1_64_0"/>
+					<Add directory="F:/project/windows_digtal/seven-segment-display/include"/>
+					<Add directory="F:/project/windows_digtal/seven-segment-display/test/../include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include/c++/backward"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/include-fixed"/>
+					<Add directory="F:/lib_win/mingw/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/7.1.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/test/Makefile&quot;  VERBOSE=1 testfile/fast"/>
+					<CompileFile command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/lib_win/mingw/mingw64/bin/mingw32-make.exe -f &quot;F:/project/windows_digtal/seven-segment-display/cmake-build-release/test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/Include/DigtalLocate.cpp">
+			<Option target="digital_linux_test_correcange"/>
+			<Option target="digital_linux_t"/>
+			<Option target="digital_linux_train"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/Include/DigtalLocate.h">
+			<Option target="digital_linux_test_correcange"/>
+			<Option target="digital_linux_t"/>
+			<Option target="digital_linux_train"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/Include/Histogram1D.cpp">
+			<Option target="digital_linux_test_correcange"/>
+			<Option target="digital_linux_t"/>
+			<Option target="digital_linux_train"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/Include/Histogram1D.h">
+			<Option target="digital_linux_test_correcange"/>
+			<Option target="digital_linux_t"/>
+			<Option target="digital_linux_train"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/Include/LBP.CPP">
+			<Option target="digital_linux_test_correcange"/>
+			<Option target="digital_linux_t"/>
+			<Option target="digital_linux_train"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/Include/WatershedSegmenter.hpp">
+			<Option target="digital_linux_test_correcange"/>
+			<Option target="digital_linux_t"/>
+			<Option target="digital_linux_train"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/Include/jsoncpp.cpp">
+			<Option target="digital_linux_test_correcange"/>
+			<Option target="digital_linux_t"/>
+			<Option target="digital_linux_train"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/Include/tool.cpp">
+			<Option target="digital_linux_test_correcange"/>
+			<Option target="digital_linux_t"/>
+			<Option target="digital_linux_train"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/Include/tool.h">
+			<Option target="digital_linux_test_correcange"/>
+			<Option target="digital_linux_t"/>
+			<Option target="digital_linux_train"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/main.cpp">
+			<Option target="digital_linux_train"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/main2.cpp">
+			<Option target="digital_linux_t"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/main3.cpp">
+			<Option target="digital_linux_test_correcange"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/test.cpp">
+			<Option target="digital_linux_t"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/test.h">
+			<Option target="digital_linux_t"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/test/main.cpp">
+			<Option target="testfile"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/../../../lib_win/opencv/mingw/install/OpenCVConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\lib_win\opencv\mingw\install\"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/../../../lib_win/opencv/mingw/install/OpenCVConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\lib_win\opencv\mingw\install\"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/../../../lib_win/opencv/mingw/install/OpenCVConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\lib_win\opencv\mingw\install\"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/../../../lib_win/opencv/mingw/install/OpenCVConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\lib_win\opencv\mingw\install\"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/../../../lib_win/opencv/mingw/install/OpenCVConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\lib_win\opencv\mingw\install\"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/../../../lib_win/opencv/mingw/install/OpenCVConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\lib_win\opencv\mingw\install\"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/../../../lib_win/opencv/mingw/install/x64/mingw/lib/OpenCVConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\lib_win\opencv\mingw\install\x64\mingw\lib\"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/../../../lib_win/opencv/mingw/install/x64/mingw/lib/OpenCVModules.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\lib_win\opencv\mingw\install\x64\mingw\lib\"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/../../../lib_win/opencv/mingw/install/x64/mingw/lib/OpenCVModules-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\lib_win\opencv\mingw\install\x64\mingw\lib\"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/../../../lib_win/opencv/mingw/install/x64/mingw/lib/OpenCVConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\lib_win\opencv\mingw\install\x64\mingw\lib\"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/../../../lib_win/opencv/mingw/install/x64/mingw/lib/OpenCVConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\lib_win\opencv\mingw\install\x64\mingw\lib\"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\test\"/>
+		</Unit>
+		<Unit filename="F:/project/windows_digtal/seven-segment-display/test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\test\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

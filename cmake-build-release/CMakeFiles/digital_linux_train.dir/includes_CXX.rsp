@@ -1,0 +1,1 @@
+-isystem F:/lib_win/opencv/mingw/install/include -isystem F:/lib_win/opencv/mingw/install/include/opencv -IF:/lib_win/boost_1_64_0 -IF:/project/windows_digtal/seven-segment-display/include 

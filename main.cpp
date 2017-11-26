@@ -43,18 +43,12 @@ void trainwap(){
         DigtalLocate a = DigtalLocate("../datasource/nnndata/nnndata_"+to_string(i)+".jpg",1.1);
         trainData.push_back(a.Get_LBP());
         labels.push_back(0);
-
-
     }
     weight.push_back(Pnum+1);
     for(int i=0; i<=Pnum;i++) {
         DigtalLocate a = DigtalLocate("../datasource/pppdata/pppdata_"+to_string(i)+".jpg",1.1);
-
-
         trainData.push_back(a.Get_LBP());
         labels.push_back(1);
-
-
     }
     weight.push_back(Nnum+1);
 

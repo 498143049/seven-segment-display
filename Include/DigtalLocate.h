@@ -82,6 +82,7 @@ public:
     cv::Mat yellow;
     cv::Mat green;
     cv::Mat blue;
+    cv::Mat black;
     cv::Mat const_Mat;
     vector<pair<string,cv::Rect>> result_ROI;  //存储最后的结果最后结果
     debug_fun output;

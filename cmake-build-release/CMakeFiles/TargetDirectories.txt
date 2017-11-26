@@ -1,0 +1,8 @@
+F:/project/windows_digtal/seven-segment-display/cmake-build-release/CMakeFiles/digital_linux_test_correcange.dir
+F:/project/windows_digtal/seven-segment-display/cmake-build-release/CMakeFiles/digital_linux_t.dir
+F:/project/windows_digtal/seven-segment-display/cmake-build-release/CMakeFiles/digital_linux_train.dir
+F:/project/windows_digtal/seven-segment-display/cmake-build-release/CMakeFiles/edit_cache.dir
+F:/project/windows_digtal/seven-segment-display/cmake-build-release/CMakeFiles/rebuild_cache.dir
+F:/project/windows_digtal/seven-segment-display/cmake-build-release/test/CMakeFiles/testfile.dir
+F:/project/windows_digtal/seven-segment-display/cmake-build-release/test/CMakeFiles/edit_cache.dir
+F:/project/windows_digtal/seven-segment-display/cmake-build-release/test/CMakeFiles/rebuild_cache.dir

@@ -80,7 +80,10 @@ public:
     static cv::Mat thinImage(const cv::Mat & src, const int maxIterations = -1);
     static void thin(const Mat &src, Mat &dst, const int iterations);
     static void AdaptiveFindThreshold(const Mat image, double *low, double *high, int aperture_size=3);
+    static Mat location_by_orb(Mat img_object,Mat img_matches);
     static string location(Mat &src);
+    static Mat get_watershed_segmenter_mark(int front_value,int back_value,const Mat & src_img);
+    static Mat get_binnary_by_watershed(const Mat &mark, const Mat &src_mat);
     template <typename  T>
     static vector<vector<double >> radon(Mat src,vector<T> angle_array) {
         uint16_t k, m, n;              /* loop counters */

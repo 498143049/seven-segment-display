@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 
 
 
-    for(int i=0; i<=29;i++) {
+    for(int i=37; i<=37;i++) {
         int64_t time = cvGetTickCount();
         DigtalLocate temp =  DigtalLocate("../datasource/ndata/ndata_"+to_string(i)+".jpg",1.1);
         temp.probably_locate();

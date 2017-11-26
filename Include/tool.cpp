@@ -8,12 +8,29 @@
 //#define NDEBUG
 
 //返回分水岭后的图像
-
+Mat tool::get_watershed_segmenter_mark(int front_value,int back_value,const Mat & src_img){
+    Mat front,back,scr(src_img.size(),CV_8UC1,Scalar(128)),markers(src_img.size(),CV_8UC1,cv::Scalar(0));
+    cv::threshold(src_img,front,front_value, 255, CV_THRESH_BINARY);  //参数自己调整
+    cv::threshold(src_img,back,back_value, 255, CV_THRESH_BINARY);  //参数自己调整
+    back=~back;   //取非
+    markers+=front;
+    scr.copyTo(markers,back);
+    return markers;
+}
+Mat tool::get_binnary_by_watershed(const Mat &mark, const Mat &src_mat){
+    WatershedSegmenter segmenter1;  //实例化一个分水岭分割方法的对象
+    segmenter1.setMarkers(mark);//设置算法的标记图像，使得水淹过程从这组预先定义好的标记像素开始
+    segmenter1.process(src_mat);     //传入待分割原图
+    Mat answer =  segmenter1.getSegmentation();
+    threshold(answer,answer,129,255,CV_THRESH_BINARY); //把128的也设置为0　
+    return answer;
+}
 Mat  tool::get_best_side(DigtalLocate *src,int front_value,int back_value,Mat & mat){
     Mat front,back;
     cv::threshold(mat,front,front_value, 255, CV_THRESH_BINARY);  //参数自己调整
     cv::threshold(mat,back,back_value, 255, CV_THRESH_BINARY);  //参数自己调整
-    back=~back;
+    back=~back;                                                 //取非
+
     Mat scr(src->const_Mat.size(),CV_8UC1,Scalar(128));
     cv::Mat markers(src->const_Mat.size(),CV_8UC1,cv::Scalar(0));
     markers+=front;
@@ -443,7 +460,7 @@ string tool::resultout  (string dir ,string name, Mat resultResized, string subd
 }
 
 string tool::DebugOut  (string dir ,string name, Mat resultResized, string subdirName, int tid) {
-#ifndef  NDEBUG
+#ifndef  NDEBUG_A
     //可以先判断文件夹在不在,然后可以创建
     boost::format frm_dir("../datasource/tmp/%s");
     frm_dir %dir;
@@ -1298,13 +1315,13 @@ string tool::location(Mat &src){
     //读取图片
     //模板滤波
     if(src.rows<40) return " ";
-    /* Mat templates = imread("../datasource/template/template.jpg",IMREAD_GRAYSCALE); //灰度图
-    Size targetsize(src.cols, src.rows);
-    resize(templates,templates,targetsize);
-    src = src&templates; */
+//     Mat templates = imread("../datasource/template/template.jpg",IMREAD_GRAYSCALE); //灰度图
+//     Size targetsize(src.cols, src.rows);
+//     resize(templates,templates,targetsize);
+//     src = src&templates;
 
 
-    uint8_t type;
+    uint8_t type = 0;
     int middle=0, quarter=0, three_quarters=0; /* scanlines */
     //if(width/heiht<2.3) return "1";
     int d_height=src.rows; /* height of digit */
@@ -1407,7 +1424,7 @@ string tool::location(Mat &src){
         case D_HEX_E: return "e"; break;
         case D_HEX_F: return "f"; break;
         case D_U: return "U";break;
-        case D_OTHER_SIX: return "6"; break;
+        case D_OTHER_SIX: return "6_"; break;
         case D_P:return "P"; break;
         case D_H:return "H"; break;
         case Mid:return "-"; break;
@@ -1451,7 +1468,7 @@ void _AdaptiveFindThreshold(CvMat *dx, CvMat *dy, double *low, double *high)
 
     // 计算直方图
     range_0[1] = maxv;
-    hist_size = (int)(hist_size > maxv ? maxv:hist_size);
+    hist_size = (int)(hist_size > maxv ? maxv:hist_size); //限制最大为255
     hist = cvCreateHist(1, &hist_size, CV_HIST_ARRAY, ranges, 1);
     cvCalcHist( &imge, hist, 0, NULL );
     int total = (int)(size.height * size.width * PercentOfPixelsNotEdges);
@@ -1485,6 +1502,104 @@ void tool::AdaptiveFindThreshold(const Mat image, double *low, double *high, int
 
     CvMat _dx = dx, _dy = dy;
     _AdaptiveFindThreshold(&_dx, &_dy, low, high);
+
+}
+Mat tool::location_by_orb(Mat img_object,Mat img_matches){
+    //这里使用的是orb特征描述子
+    cv::Ptr<cv::FeatureDetector> orb =  ORB::create(1000);
+    vector<KeyPoint> objectKeypoints,sceneKeypoints;
+    Mat objectDescriptors,sceneDescriptors;
+    //特征提取 以及特征描述
+    orb->detectAndCompute(img_object, Mat(), objectKeypoints, objectDescriptors);
+    orb->detectAndCompute(img_matches, Mat(), sceneKeypoints, sceneDescriptors);
+
+    //调试手段
+    //   Mat ShowKeypoints1, ShowKeypoints2;
+    //   drawKeypoints(rgbd1,objectKeypoints,ShowKeypoints1);
+    //   drawKeypoints(rgbd2, sceneKeypoints, ShowKeypoints2);
+    //  imshow("Keypoints1", ShowKeypoints1);
+    //   imshow("Keypoints2", ShowKeypoints2);
+
+    cv::Mat results;
+    cv::Mat dists;
+    std::vector<cv::DMatch> matches;
+    const int k=2; // find the 2 nearest neighbors //可以根据级之间的优化进行修改
+    //建立knn搜索树，之后可以放在外部，根据模板的方法缓存
+    cv::flann::Index flannIndex(sceneDescriptors, cv::flann::LshIndexParams(12, 20, 2), cvflann::FLANN_DIST_HAMMING);
+    flannIndex.knnSearch(objectDescriptors, results, dists, k, cv::flann::SearchParams());
+
+
+    //knn serach 剔除不需要点
+    float nndrRatio = 0.8f;
+    std::vector<cv::Point2f> mpts_1, mpts_2; // Used for homography
+    std::vector<int> indexes_1, indexes_2; // Used for homography
+    std::vector<uchar> outlier_mask;  // Used for homography 没有匹配到点
+    vector<DMatch> vts;
+    for(int i=0; i<objectDescriptors.rows; ++i)
+    {
+        // Apply NNDR
+        //printf("q=%d dist1=%f dist2=%f\n", i, dists.at<float>(i,0), dists.at<float>(i,1));
+        if(results.at<int>(i,0) >= 0 && results.at<int>(i,1) >= 0 &&
+           dists.at<float>(i,0) <= nndrRatio * dists.at<float>(i,1))
+        {
+            mpts_1.push_back(objectKeypoints.at(i).pt);
+            indexes_1.push_back(i);
+
+            mpts_2.push_back(sceneKeypoints.at(results.at<int>(i,0)).pt);
+            indexes_2.push_back(results.at<int>(i,0));
+
+            vts.push_back(DMatch(i,results.at<int>(i,0),dists.at<float>(i,0)));  //
+        }
+    }
+
+    //Homography 投影合理的点
+    std::vector<unsigned char> inliersMask(matches.size());
+    cv::Mat H = findHomography(mpts_2, mpts_1, cv::RANSAC, 1.0, outlier_mask);
+    //得到了H的矩阵
+
+    //调试 得到映射点集合
+    std::vector<cv::DMatch> inliers;
+    for (size_t i=0; i<outlier_mask.size(); i++)
+    {
+        if (outlier_mask[i])
+            inliers.push_back(vts[i]);
+    }
+    vts.swap(inliers);
+
+
+    //两个点
+//    std::vector<Point2f> obj_corners(4);
+//    obj_corners[0] = cvPoint(0,0); obj_corners[1] = cvPoint( img_object.cols, 0 );
+//    obj_corners[2] = cvPoint( img_object.cols, img_object.rows ); obj_corners[3] = cvPoint( 0, img_object.rows );
+//    std::vector<Point2f> scene_corners(4);
+//    perspectiveTransform( obj_corners, scene_corners, H);
+    //这4个点也反射变换
+    // Mat h = findHomography(scene_corners, obj_corners);
+    Mat im_dst;
+    Mat im_src = img_matches.clone();
+    warpPerspective(im_src, im_dst, H, img_object.size());
+
+    return im_dst;
+    //画出条试图
+    imshow( "Good Matche", im_dst );
+    tool::DebugOut("test","test-1",im_dst);
+    Mat New = img_matches.clone();
+    //-- Draw lines between the corners (the mapped object in the scene - image_2 )
+//    line( New, scene_corners[0] , scene_corners[1] , Scalar(0, 255, 0), 4 );
+//    line( New, scene_corners[1] , scene_corners[2] , Scalar( 0, 255, 0), 4 );
+//    line( New, scene_corners[2] , scene_corners[3] , Scalar( 0, 255, 0), 4 );
+//    line( New, scene_corners[3] , scene_corners[0] , Scalar( 0, 255, 0), 4 );
+
+    //-- Show detected matches
+    imshow( "Good Matches & Object detection", New );
+
+
+
+    Mat homoShow;
+    drawMatches(img_object,objectKeypoints,img_matches,sceneKeypoints,vts,homoShow,Scalar::all(-1),CV_RGB(255,255,255),Mat(),2);
+    Mat result;
+    imshow("homoShow",homoShow);
+    waitKey(0);
 
 }
 

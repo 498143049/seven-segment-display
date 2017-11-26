@@ -1,0 +1,3 @@
+"D:\CLion 2017.2\bin\cmake\bin\cmake.exe" -E remove -f CMakeFiles\digital_linux_test_correcange.dir/objects.a
+F:\lib_win\mingw\mingw64\bin\ar.exe cr CMakeFiles\digital_linux_test_correcange.dir/objects.a @CMakeFiles\digital_linux_test_correcange.dir\objects1.rsp
+F:\lib_win\mingw\mingw64\bin\g++.exe -O3 -DNDEBUG   -Wl,--whole-archive CMakeFiles\digital_linux_test_correcange.dir/objects.a -Wl,--no-whole-archive  -o digital_linux_test_correcange.exe -Wl,--out-implib,libdigital_linux_test_correcange.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\digital_linux_test_correcange.dir\linklibs.rsp

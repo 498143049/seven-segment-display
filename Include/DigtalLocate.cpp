@@ -66,10 +66,13 @@ DigtalLocate::DigtalLocate(string urlPath,int type):urlName(urlPath) {
 extern ofstream outfile;
 DigtalLocate::DigtalLocate(string urlPath,double x){
     this->const_Mat = imread(urlPath);
+    //构造函数可以对类中的对象进行缩放
+
     this->imgMat =  this->const_Mat.clone();  //const_Mat 为不变的　img 是为调试做准备
     this->blue=this->const_Mat.clone();
     this->green=this->const_Mat.clone();
     this->yellow=this->const_Mat.clone();
+    this->black =  Mat(const_Mat.rows,const_Mat.cols, CV_8UC1, Scalar(0));
     BOOST_ASSERT((this->imgMat.data)&&"read image error");
     this->name=tool::get_name(urlPath);  //
     //this->dirname = name;
@@ -128,15 +131,11 @@ DigtalLocate::DigtalLocate(DigtalLocate *Dig,cv::Rect rect,int id){
     this->_medium = Dig->_medium(rect);
     this->_gray_dif = Dig->_gray_dif(rect);
     this->_gray = Dig->_gray(rect);
-
+    this->black = Dig->black(rect);
     if(Dig->best_gray==&Dig->_gray)
         this->best_gray = &this->_gray;
     else
         this->best_gray = &this->_max;
-
-
-
-
 }
 
 void DigtalLocate::recongize_test(){
@@ -235,7 +234,7 @@ string  DigtalLocate::get_char(){
     for(uint8_t c=0;c<canditaes.size();c++) {
         DigtalLocate sub = DigtalLocate(this,canditaes[c],c);
         bool ist = sub.reconize_char();
-        cv::rectangle(imgMat, canditaes[c], Scalar(0, 255, 0), 3, 1, 0);
+      //  cv::rectangle(imgMat, canditaes[c], Scalar(0, 255, 0), 3, 1, 0);
         //cv::rectangle(green, canditaes[c], Scalar(0, 0, 0), 40, 1, 0);
         cv::rectangle(green, canditaes[c], Scalar(0, 255, 0), 20, 1, 0);
         cv::Mat roiImg_raw  = const_Mat(canditaes[c]);
@@ -246,6 +245,7 @@ string  DigtalLocate::get_char(){
           //  if(mean(sub._gray)[0]>70) {
              //  threshold(sub._gray, best_test, 0, 255, CV_THRESH_OTSU | CV_THRESH_BINARY);
             Mat t = sub._gray.clone();
+
               //  best_test = tool::char_threshold(sub.const_Mat,t,sub.name,0);
 //            }
 //            else{
@@ -275,12 +275,18 @@ string  DigtalLocate::get_char(){
 //            best_test = th1;
              **/
             threshold(sub._medium,best_test,0, 255, CV_THRESH_OTSU|CV_THRESH_BINARY);
+
             tool::DebugOut(STR(finnal6), sub.name, best_test);
 //             best_test = tool::char_threshold(sub.const_Mat,t,sub.name,sub._max,0);
 //             tool::DebugOut(STR(finnal), sub.name, best_test);
+
+            sub.black = sub.black|best_test;
+            tool::DebugOut(STR(finna7), sub.name, sub.black);
             Mat canny;
+
             angel = tool::correct_error(best_test, angel,canny);  //整体的角度　best_angle 矫正钱
             tool::DebugOut(STR(canny),sub.name,canny);
+            angel = 0;
 
 //            cout<<angel<<endl;
 //            if(angel==-361) {
@@ -299,7 +305,7 @@ string  DigtalLocate::get_char(){
             Mat sssrc = tool::get_R_mat(sub.const_Mat,dangle);
             ss = splite_char_sub(ss);
             tool::DebugOut(STR(ss_correct_after), sub.name, ss); //ss矫正后
-            tool::DebugOut(STR(ss_correct_after_src), sub.name, sssrc); //ss矫正后
+            tool::DebugOut(STR(ss_correct_after_src), sub.name, sssrc); //ss矫正后源文件方便展示
             result +=tool::location(ss);
             tool::DebugOut(STR(size_after), sub.name, ss); //ss矫正后
             //result += tool::getNOByLine(ss, tool::getLineRange(best_test.rows, best_test.cols), false,angel);
@@ -317,9 +323,11 @@ string  DigtalLocate::get_char(){
     for(uint8_t c=0;c<newcanditaes.size();c++) {
         cv::rectangle(imgMat, newcanditaes[c], Scalar(255, 0, 0), 3, 1, 0);
        // cv::rectangle(blue, newcanditaes[c], Scalar(0, 0, 0), 40, 1, 0);
+     //   cv::rectangle(black, newcanditaes[c], Scalar(255,255,255), -1, 0, 0);
         cv::rectangle(blue, newcanditaes[c], Scalar(255, 0, 0), 20, 1, 0);
-        cv::Mat roiImg_raw  = const_Mat(newcanditaes[c]);
-//        putText(imgMat,result,Point(30,30),1,1,Scalar(255,255,255),1);  //调试不需要
+     //   cv::Mat roiImg_raw  = const_Mat(newcanditaes[c]);
+        //roiImg_raw.copyTo(black);
+     //  putText(imgMat,result,Point(30,30),1,1,Scalar(255,255,255),1);  //调试不需要
 
 //        tool::DebugOut(STR(sub_candidates_s), name, roiImg_raw, name, c);
 //        tool::DebugOut(STR(sub_candidate_s), name, imgMat);
@@ -330,23 +338,30 @@ string  DigtalLocate::get_char(){
 
 
 vector<Rect> DigtalLocate::probably_locate(){
-    Mat threshold_diff, threshold_white, combine;
+    const int must_front_high = 150;
+    const int must_front_low = 100;
+    Mat threshold_diff, threshold_white, combine,Ex_combine;
     vector<Rect> canditaes;    //数码管特征图
-    threshold_diff =  tool::get_best_side(this, 150, 100,_gray_dif); //对差值图使用 给定一个阈值
+    //使用分水岭算法提取有颜色的区域
+    // 利用了颜色特征
 
-    tool::DebugOut(STR(gray_dif), name, _gray_dif);        //差之途
-    tool::DebugOut(STR(set_result), name, threshold_diff); //分水岭结果图
-    cv::threshold(_max,threshold_white,254, 255, CV_THRESH_BINARY);
-
-    tool::DebugOut(STR(threshold_white), name, threshold_white); //曝光过度图
-
+    threshold_diff =  tool::get_best_side(this, must_front_high, must_front_low,_gray_dif); //对差值图使用给定一个阈值
+    cv::threshold(_max,threshold_white,254, 255, CV_THRESH_BINARY);  //曝光过度值图
     combine = threshold_diff|threshold_white;
+    cv::morphologyEx(combine, Ex_combine, cv::MORPH_CLOSE, cv::Mat::ones(5, const_Mat.cols/50, CV_8UC1));  //膨胀与腐蚀
+
+    /******deubg******/
+    tool::DebugOut(STR(gray_dif), name, _gray_dif);        //差值图
+    tool::DebugOut(STR(set_result), name, threshold_diff); //分水岭结果图
+    tool::DebugOut(STR(threshold_white), name, threshold_white); //曝光过度图
     tool::DebugOut(STR(before_combine), name, combine); //曝光过度图
-    cv::morphologyEx(combine, combine, cv::MORPH_CLOSE, cv::Mat::ones(5, const_Mat.cols/50, CV_8UC1));  //膨胀与腐蚀
-    tool::DebugOut(STR(combine), name, combine);
-    canditaes = get_digital_area(combine);
+    tool::DebugOut(STR(combine), name, Ex_combine);
+    /************end********/
+
+
+    canditaes = get_digital_area(Ex_combine);
     for(unsigned int  c=0;c<canditaes.size();c++) {
-        cv::rectangle(imgMat, canditaes[c], Scalar(0, 255, 255), 5, 1, 0);
+       // cv::rectangle(imgMat, canditaes[c], Scalar(0, 255, 255), 5, 1, 0);
         //cv::rectangle(yellow, canditaes[c], Scalar(0, 0, 0), 80, 1, 0);
         cv::rectangle(yellow, canditaes[c], Scalar(0, 255, 255), 80, 1, 0);
         cv::Mat roiImg_raw  = const_Mat(canditaes[c]);
@@ -357,7 +372,7 @@ vector<Rect> DigtalLocate::probably_locate(){
         string s = sub.get_char();
         //结果
         //调试出去画图结果
-       // putText(imgMat,s,Point(canditaes[c].x-50,canditaes[c].y-50),1,10,Scalar(255,255,255),10);
+        putText(imgMat,s,Point(canditaes[c].x-50,canditaes[c].y-50),1,10,Scalar(255,255,255),10);
         if(s.size()!=0)
             result_ROI.push_back({s,Rect()});
     }
@@ -370,6 +385,7 @@ vector<Rect> DigtalLocate::probably_locate(){
     tool::DebugOut(STR(yellow), name, yellow);
     tool::DebugOut(STR(blue), name, blue);
     tool::DebugOut(STR(green), name, green);
+    tool::DebugOut(STR(black), name, black);
     return std::move(canditaes);
     //构成了candidate　然后画出来
 }
@@ -1286,10 +1302,10 @@ Mat  DigtalLocate::extera_by_edge_diff(Mat &src,std::vector<cv::Rect> &scandidat
 }
 //这个函数必须保证只能拥有1个数码管不能拥有多个
 vector<cv::Rect> DigtalLocate::get_digital_area(Mat &src){
-    double rect_area_min = 0.0003*const_Mat.rows * const_Mat.cols;  //先定数码管区域大小
-    double rect_area_max = 0.4*const_Mat.rows * const_Mat.cols;     //先定数码管区域大小
-    double max_height = 0.4*const_Mat.rows;
-    double max_width = 0.75*const_Mat.cols;
+    const double rect_area_min = 0.0003*const_Mat.rows * const_Mat.cols;  //先定数码管区域大小
+    const double rect_area_max = 0.4*const_Mat.rows * const_Mat.cols;     //先定数码管区域大小
+    const double max_height = 0.4*const_Mat.rows;
+    const double max_width = 0.75*const_Mat.cols;
     std::vector<std::vector<cv::Point> > plate_contours;
     std::vector<cv::Rect> candidates;
 
@@ -1749,22 +1765,22 @@ vector<cv::Rect> DigtalLocate::mserExtractor(){
     const double imageArea = 0.01*gray_neg.rows * gray_neg.cols;   //可以调整以防输入区域过大
     const double imagemin = 0.00015*gray_neg.rows * gray_neg.cols;
 
-    cv::Ptr<MSER> mesr1 = cv::MSER::create(0.01, imagemin,imageArea, 0.5); //创建mers //第一个增加可以减少重影  //第四个越大则范围越广
-//    cv::Ptr<MSER> mesr2 = cv::MSER::create(2, 2, 400, 0.1, 0.3);
-    std::vector<cv::Rect> bboxes1;
-//    std::vector<cv::Rect> bboxes2;
-    mesr1->detectRegions(gray_neg, regContours, bboxes1);
-//    cv::morphologyEx(local, mserClosedMat,
-  //                   cv::MORPH_CLOSE, cv::Mat::ones(10, 1, CV_8UC1));
-    cv::Mat mserMapMat =cv::Mat::zeros(imgMat.size(), CV_8UC1);
-
-    for(auto singlepointarry:regContours)
-    {
-        for(auto point:singlepointarry)
-        {
-            mserMapMat.at<uchar>(point) = 255;
-        }
-    }
+//    cv::Ptr<MSER> mesr1 = cv::MSER::create(0.01, imagemin,imageArea, 0.5); //创建mers //第一个增加可以减少重影  //第四个越大则范围越广
+////    cv::Ptr<MSER> mesr2 = cv::MSER::create(2, 2, 400, 0.1, 0.3);
+//    std::vector<cv::Rect> bboxes1;
+////    std::vector<cv::Rect> bboxes2;
+//    mesr1->detectRegions(gray_neg, regContours, bboxes1);
+////    cv::morphologyEx(local, mserClosedMat,
+//  //                   cv::MORPH_CLOSE, cv::Mat::ones(10, 1, CV_8UC1));
+//    cv::Mat mserMapMat =cv::Mat::zeros(imgMat.size(), CV_8UC1);
+//
+//    for(auto singlepointarry:regContours)
+//    {
+//        for(auto point:singlepointarry)
+//        {
+//            mserMapMat.at<uchar>(point) = 255;
+//        }
+//    }
 
     // 闭操作连接缝隙
   /*  cv::Mat mserClosedMat;
@@ -1787,19 +1803,19 @@ vector<cv::Rect> DigtalLocate::mserExtractor(){
             candidates1.push_back(rect);
     }*/
 
-    for(auto cvsingle : bboxes1)
-    {
-        double wh_ratio = cvsingle.width / double(cvsingle.height);
-        if((wh_ratio<3)&&(wh_ratio>0.3))
-        {
-            candidates.push_back(cvsingle);
-        }
-    }
-  //  groupRectangles(candidates, 1 );
-   for(auto cvsingle : candidates) {
-       cv::rectangle(imgMat, cvsingle, Scalar(0, 255, 0), 2, 1, 0);
-   }
-    tool::DebugOut(STR(ROI), name, imgMat);
+//    for(auto cvsingle : bboxes1)
+//    {
+//        double wh_ratio = cvsingle.width / double(cvsingle.height);
+//        if((wh_ratio<3)&&(wh_ratio>0.3))
+//        {
+//            candidates.push_back(cvsingle);
+//        }
+//    }
+//  //  groupRectangles(candidates, 1 );
+//   for(auto cvsingle : candidates) {
+//       cv::rectangle(imgMat, cvsingle, Scalar(0, 255, 0), 2, 1, 0);
+//   }
+//    tool::DebugOut(STR(ROI), name, imgMat);
     return candidates;
 
 }
@@ -1836,6 +1852,39 @@ void DigtalLocate::output_joson() {
         outfile.close();
     }
 }
+//vector<Mat> Get_Sub_Mat(Mat srcImage,double scale,string name){
+//    CV_Assert(srcImage.depth() == CV_8U&&srcImage.channels() == 3);  //检查是否是三通道图像
+//    Size ResImgSiz = Size(srcImage.cols*scale, srcImage.rows*scale);
+//    Mat ResImg = Mat(ResImgSiz, srcImage.type());
+//
+//    resize(srcImage, ResImg, ResImgSiz, CV_INTER_CUBIC); //创建比较小的图像
+//    const int must_front_high = 150;
+//    const int must_front_low = 100;
+//    Mat threshold_diff, threshold_white, combine,Ex_combine;
+//    vector<Rect> canditaes;    //数码管特征图
+//    //使用分水岭算法提取有颜色的区域
+//    // 利用了颜色特征
+//    Mat mask = tool::get_watershed_segmenter_mark(must_front_high,must_front_low,_gray_dif);
+//    Mat result = tool::get_binnary_by_watershed(mask,srcImage)
+//
+//    cv::threshold(_max,threshold_white,254, 255, CV_THRESH_BINARY);  //曝光过度值图
+//    combine = threshold_diff|threshold_white;
+//    cv::morphologyEx(combine, Ex_combine, cv::MORPH_CLOSE, cv::Mat::ones(5, const_Mat.cols/50, CV_8UC1));  //膨胀与腐蚀
+//
+//    /******deubg******/
+//    tool::DebugOut(STR(gray_dif), name, _gray_dif);        //差值图
+//    tool::DebugOut(STR(set_result), name, threshold_diff); //分水岭结果图
+//    tool::DebugOut(STR(threshold_white), name, threshold_white); //曝光过度图
+//    tool::DebugOut(STR(before_combine), name, combine); //曝光过度图
+//    tool::DebugOut(STR(combine), name, Ex_combine);
+//    /************end********/
+//
+//
+//    canditaes = get_digital_area(Ex_combine);
+//
+//
+//
+//}
 void DigtalLocate::output_log(){
 
     boost::format frm_dir("../datasource/log/%d.txt");
